@@ -439,7 +439,7 @@ class Grader:
         self.grade_section_LAST()
         self.fill_final_text_section()
         self.submit_project()
-        print('graded project in {0:0.2f}s'.format(time.time-start))
+        print('graded project in {0:0.2f}s'.format(time.time()-start))
 
 
 def launch_browser(phantom=False):
