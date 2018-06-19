@@ -7,10 +7,13 @@ import time
 import os
 import re
 from tkinter import Tk
+from credentials import credentials
 
 
 class Grader:
     def __init__(self, browser, verbose=True):
+        creds = credentials()
+        
         self.browser = browser
         self.verbose = verbose
 
@@ -18,8 +21,8 @@ class Grader:
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
         self.email_XPATH = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[1]/input'
         self.pass_XPATH = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[2]/input'
-        self.email = 'mnalavadi@gmail.com'
-        self.password = 'Milton94?'
+        self.email = creds['email']
+        self.password = creds['password']
         self.signin_button_XPATH = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/button'
         self.queue_status_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
         self.queue_enter_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div/div[2]/button'
@@ -74,6 +77,10 @@ class Grader:
     def SLEEP(self, seconds=4):
         # utility function to wait for pages to render
         time.sleep(seconds)
+
+    def scroll_into_view(self, e):
+        # scroll an element into view
+        self.browser.execute_script("return arguments[0].scrollIntoView();", e)
 
     def login(self):
         # a simple login routine
@@ -223,8 +230,7 @@ class Grader:
         if self.h >= 3:
             self.has_headers = True
         if self.verbose:
-            print('divs: {} \nh-tags: {} \nimg: {} \nlink: {} \n\
-                   linked-CSS: {} \nCSS class {}'.
+            print('divs: {} \nh-tags: {} \nimg: {} \nlink: {} \nlinked-CSS: {} \nCSS class {}'.
                   format(self.divs, self.h, self.has_img, self.has_link,
                          self.has_linked_CSS, self.has_CSS_class))
 
@@ -241,10 +247,6 @@ class Grader:
         if self.verbose:
             print('CSS selectors: {} passed {}'.format(self.num_CSS_selectors,
                                                        self.has_CSS_selectors))
-
-    def scroll_into_view(self, e):
-        # scroll an element into view
-        self.browser.execute_script("return arguments[0].scrollIntoView();", e)
 
     def grade_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
@@ -357,7 +359,7 @@ class Grader:
                     if you are having difficulty with images'
         self.grade_section(9, self.has_link, pass_msg, fail_msg)
 
-        print('all sections graded!') if self.verbose else 0
+        print('sections 1-9 graded!') if self.verbose else 0
 
     def grade_section_LAST(self):
         # last (section 10) must be different for some reason...
@@ -367,10 +369,11 @@ class Grader:
 
         _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div/div/div/ng-form/div[1]/div/label/input'
         _pass1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div/div/div/ng-form/div[2]/div/label/input'
-
         _text1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+
         _save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div/div/div/ng-form/div[4]/div[2]/div/button[1]'
         if criteria is True:
             _grade = _pass1
             msg = pass_msg
@@ -379,6 +382,7 @@ class Grader:
             msg = fail_msg
 
         try:
+            # if not graded before
             e = self.browser.find_element(By.XPATH, _grade)
             self.scroll_into_view(e)
             e.click()
@@ -389,9 +393,15 @@ class Grader:
             self.scroll_into_view(e)
             e.click()
         except NoSuchElementException:
-            e = self.browser.find_element(By.XPATH, _save2)
-            self.scroll_into_view(e)
-            e.click()
+            # if already graded - two options...
+            try:
+                e = self.browser.find_element(By.XPATH, _save3)
+                self.scroll_into_view(e)
+                e.click()
+            except NoSuchElementException:
+                e = self.browser.find_element(By.XPATH, _save2)
+                self.scroll_into_view(e)
+                e.click()
 
     def fill_final_text_section(self):
         # fill out the final section of text (good job message)
