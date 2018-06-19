@@ -13,7 +13,7 @@ from credentials import credentials
 class Grader:
     def __init__(self, browser, verbose=True):
         creds = credentials()
-        
+
         self.browser = browser
         self.verbose = verbose
 
