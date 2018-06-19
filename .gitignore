@@ -1,0 +1,6 @@
+setup.cfg
+.ipynb_checkpoints/
+Test Selenium.ipynb
+__pycache__/
+credentials.py
+geckodriver.log
