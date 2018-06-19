@@ -1,4 +1,5 @@
-from selenium import webdriver
+from selenium.webdriver import Firefox, FirefoxProfile
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -425,7 +426,8 @@ class Grader:
         e = self.browser.find_element(By.XPATH, self.final_text_XPATH)
         self.scroll_into_view(e)
         e.send_keys(msg)
-        self.browser.find_element(By.XPATH, self.final_save_button_XPATH).click()
+        e = self.browser.find_element(By.XPATH, self.final_save_button_XPATH)
+        e.click()
 
     def submit_project(self):
         # submit the graded project!
@@ -452,7 +454,7 @@ class Grader:
         print('graded project in {0:0.2f}s'.format(time.time()-start))
 
 
-def launch_browser(phantom=False):
+def launch_browser(headless=False):
     ''' launch a Firefox webdriver with disabled notifications,
         allow page loading, optionally phantom mode
 
@@ -466,11 +468,13 @@ def launch_browser(phantom=False):
     # https://stackoverflow.com/questions/32953498/how-can-i-remove-notifications-and-alerts-from-browser-selenium-python-2-7-7
     # https://stackoverflow.com/questions/26566799/how-to-wait-until-the-page-is-loaded-with-selenium-for-python
     # https://stackoverflow.com/questions/5370762/how-to-hide-firefox-window-selenium-webdriver
+    # https://developer.mozilla.org/en-US/Firefox/Headless_mode#Selenium-in-Python
 
-    if phantom:
-        os.environ['MOZ_HEADLESS'] = '1'
+    options = Options()
+    if headless:
+        options.add_argument('-headless')
 
-    fp = webdriver.FirefoxProfile()
+    fp = FirefoxProfile()
     fp.set_preference("dom.webnotifications.enabled", False)
     fp.set_preference("browser.download.folderList", 2)
     fp.set_preference("browser.download.manager.showWhenStarting", False)
@@ -478,14 +482,16 @@ def launch_browser(phantom=False):
     fp.set_preference("browser.helperApps.neverAsk.saveToDisk",
                       "application/zip")
 
-    browser = webdriver.Firefox(firefox_profile=fp)
+    browser = Firefox(firefox_profile=fp,
+                      executable_path='geckodriver',
+                      firefox_options=options)
     browser.implicitly_wait(10)
     return browser
 
 
 if __name__ == '__main__':
     # start the session
-    browser = launch_browser()
+    browser = launch_browser(True)
 
     headless_grader = Grader(browser)
     headless_grader.login()
