@@ -16,4 +16,4 @@ if headless_grader.get_project():
     headless_grader.grade_project()
 
 headless_grader.SLEEP(2)
-headless_grader.browser.close()
+headless_grader.browser.quit()
