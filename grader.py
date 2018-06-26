@@ -7,6 +7,7 @@ from selenium.common.exceptions import NoSuchElementException
 import time
 import os
 import re
+from datetime import datetime
 from tkinter import Tk
 from credentials import credentials
 
@@ -436,7 +437,21 @@ class Grader:
         self.browser.find_element(By.XPATH, self.confirm_XPATH).click()
         print('Project Submitted!') if self.verbose else 0
 
-    def grade_project(self):
+    def did_pass(self):
+        if False in [self.has_code,
+                     self.HTML_validation,
+                     self.has_img,
+                     self.has_link,
+                     self.has_linked_CSS,
+                     self.has_headers,
+                     self.has_divs,
+                     self.has_CSS_class,
+                     self.has_CSS_selectors]:
+            return False
+        else:
+            return True
+
+    def grade_project(self, log=True):
         # grade the damn project!
         start = time.time()
         self.check_files()
@@ -451,7 +466,14 @@ class Grader:
         self.grade_section_LAST()
         self.fill_final_text_section()
         self.submit_project()
-        print('graded project in {0:0.2f}s'.format(time.time()-start))
+
+        time2grade = time.time()-start
+        passed = self.did_pass()
+        print('graded project in {0:0.2f}s \tpassing: {0:0.2f}'.format(time2grade, passed))
+
+        if log:
+            with open('logs.txt', 'a') as f:
+                f.write(f'{str(datetime.now())}, {passed}, {time2grade}')
 
 
 def launch_browser(headless=False):
