@@ -15,7 +15,7 @@ def grade():
     # start a session to grade a project!
     browser = launch_browser(headless=args.headless)
 
-    headless_grader = Grader(browser)
+    headless_grader = Grader(browser, verbose=False)
     headless_grader.login()
     headless_grader.refresh_queue()
 
@@ -26,7 +26,7 @@ def grade():
     headless_grader.browser.quit()
 
 
-schedule.every(1).minutes.do(grade)
+schedule.every(30).minutes.do(grade)
 
 while True:
     schedule.run_pending()
