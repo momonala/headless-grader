@@ -172,11 +172,11 @@ class Grader:
                      .key_up('c') \
                      .key_up(Keys.CONTROL) \
                      .perform()
-        print('Copied {}!'.format(lang)) if self.verbose else 0
+        print('Copied {lang}!') if self.verbose else 0
 
     def validate_HTML(self):
         # head over the HTML validator and look for errors
-        self.browser.execute_script("$(window.open('{}'))".format(self.HTML_validation_page))
+        self.browser.execute_script(f"$(window.open('{self.HTML_validation_page}'))")
         self.SLEEP()
         self.browser.switch_to_window(self.browser.window_handles[2])
         HTML_input = self.browser.find_element(By.XPATH, self.HTML_input_XPATH)
@@ -204,7 +204,7 @@ class Grader:
                 line = line.split('.')
                 for subline in line:
                     if 'Error' in subline:
-                        self.html_val_error_msgs.append('\n\n'+subline)
+                        self.html_val_error_msgs.append('\n\n' + subline)
 
         self.browser.close()
         self.browser.switch_to_window(self.browser.window_handles[1])
@@ -232,9 +232,7 @@ class Grader:
         if self.h >= 3:
             self.has_headers = True
         if self.verbose:
-            print('divs: {} \nh-tags: {} \nimg: {} \nlink: {} \nlinked-CSS: {} \nCSS class {}'.
-                  format(self.divs, self.h, self.has_img, self.has_link,
-                         self.has_linked_CSS, self.has_CSS_class))
+            print(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \nlink: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \nCSS class {self.has_CSS_class}')
 
     def read_CSS(self):
         # read the CSS from the clipboard and analyze
@@ -247,21 +245,18 @@ class Grader:
             self.has_CSS_selectors = True
 
         if self.verbose:
-            print('CSS selectors: {} passed {}'.format(self.num_CSS_selectors,
-                                                       self.has_CSS_selectors))
+            print(f'CSS selectors: {self.num_CSS_selectors} Passed {self.has_CSS_selectors}')
 
     def grade_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
         #       '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[SEC]/div/div/ng-form/div[PASS-FAIL]/div/label/input'
-        _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[1]/div/label/input'.format(section)
-        _pass1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[2]/div/label/input'.format(section)
-
-        _text1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'.format(section)
-        _text2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'.format(section)
-
-        _save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[3]/div[2]/div/button[1]'.format(section)
-        _save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[2]/div[2]/div/button[1]'.format(section)
-        _save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[4]/div[2]/div/button[1]'.format(section)
+        _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[1]/div/label/input'
+        _pass1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div/label/input'
+        _text1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'
+        _save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[2]/div/button[1]'
 
         if criteria is True:
             _grade = _pass1
@@ -310,55 +305,40 @@ class Grader:
                 return 1
 
     def grade_section_FIRST9(self):
-        pass_msg = 'Both files found, great work!'
-        fail_msg = 'Either CSS or HTML file was missing :('
+        pass_msg = """Both files were found, great work!"""
+        fail_msg = """Either CSS or HTML file was missing :("""
         self.grade_section(1, self.has_code, pass_msg, fail_msg)
 
-        pass_msg = 'Nice job with the linked CSS!'
-        fail_msg = 'You need to use linked CSS to pass this part :('
+        pass_msg = """Nice job with the linked CSS!"""
+        fail_msg = """You need to use linked CSS to pass this part :("""
         self.grade_section(2, self.has_linked_CSS, pass_msg, fail_msg)
 
-        pass_msg = 'You passed the validations, great work!'
-        fail_msg = 'Unfortunately you did not pass the validation. Specfically,\
-                    I found the errors below. Please ask your mentor if you\
-                    need help solving these errors. \
-                    Good luck!\n{}'.format(self.html_val_error_msgs)
+        pass_msg = """You passed the validations, great work!"""
+        fail_msg = f"""Unfortunately you did not pass the validation. Specfically, I found the errors below. Please ask your mentor if you need help solving these errors. Good luck!\n{self.html_val_error_msgs}"""
         self.grade_section(3, self.HTML_validation, pass_msg, fail_msg)
 
-        pass_msg = 'Great work using the header tags!'
-        fail_msg = 'Please make sure you have the corrent number of header\
-                    tags, which is at least 3. See this link to learn more:\
-                    https://www.w3schools.com/tags/tag_header.asp'
+        pass_msg = """Great work with the header tags! You know your stuff :)"""
+        fail_msg = """Please make sure you have the corrent number of header tags, which is at least 3. See this link to learn more: https://www.w3schools.com/tags/tag_header.asp"""
         self.grade_section(4, self.has_headers, pass_msg, fail_msg)
 
         pass_msg = 'Great work using the div tags!'
-        fail_msg = 'Please make sure you have the corrent number of div tags,\
-                    which is at least 3. See this link to learn more:\
-                    https://www.w3schools.com/Tags/tag_div.asp'
+        fail_msg = 'Please make sure you have the corrent number of div tags, which is at least 3. See this link to learn more: https://www.w3schools.com/Tags/tag_div.asp'
         self.grade_section(5, self.has_divs, pass_msg, fail_msg)
 
-        pass_msg = 'Nice work using the CSS Selectors!\
-                    Youve demonstrated some solid knowledge on these.'
-        fail_msg = 'Please make sure you have the corrent number of CSS\
-                    Selectors, which is at least 3. Please check out\
-                    https://www.w3schools.com/cssref/css_selectors.asp\
-                    for more info'
+        pass_msg = """Nice work using the CSS Selectors! You've demonstrated some solid knowledge on these."""
+        fail_msg = """Please make sure you have the corrent number of CSS Selectors, which is at least 3. Please check out https://www.w3schools.com/cssref/css_selectors.asp for more info"""
         self.grade_section(6, self.has_CSS_selectors, pass_msg, fail_msg)
 
         pass_msg = 'Nice work with the CSS selectors!'
-        fail_msg = 'Please make sure you use CSS class selectors! Please\
-                    see https://www.w3schools.com/cssref/css_selectors.asp\
-                    for more'
+        fail_msg = 'Please make sure you use CSS class selectors! Please see https://www.w3schools.com/cssref/css_selectors.asp if you are have trouble.'
         self.grade_section(7, self.has_CSS_class, pass_msg, fail_msg)
 
-        pass_msg = 'Great work using the img tags!'
-        fail_msg = 'Please see https://www.w3schools.com/tags/tag_img.asp\
-                    if you are having difficulty with images'
+        pass_msg = """Great work using img tags, you've demonstrated some solid knowledge!"""
+        fail_msg = """ Unfortunately you did not pass this section. Please see https://www.w3schools.com/tags/tag_img.asp if you are having difficulty with using image tags"""
         self.grade_section(8, self.has_img, pass_msg, fail_msg)
 
-        pass_msg = 'Great work using the links!'
-        fail_msg = 'Please see https://www.w3schools.com/html/html_links.asp\
-                    if you are having difficulty with images'
+        pass_msg = """Great work using links!"""
+        fail_msg = """Please see https://www.w3schools.com/html/html_links.asp if you are having difficulty with images"""
         self.grade_section(9, self.has_link, pass_msg, fail_msg)
 
         print('sections 1-9 graded!') if self.verbose else 0
@@ -417,13 +397,9 @@ class Grader:
                              self.has_CSS_class,
                              self.has_CSS_selectors]
         if False in self.all_sections:
-            msg = "Great work on this project so far! You're almost there.\
-             Please try to fix the errors above, and good luck on the \
-             resubmission!"
+            msg = """Great work on this project so far! You're almost there. Please try to fix the errors above. If you need help, please ask your mentor you use the discussion forums. And good luck on the resubmission!"""
         else:
-            msg = "Great work! This was a nice project with clean code,\
-             and you demonstrated a clear knowledge of HTML and CSS. Onward to\
-             the next project!"
+            msg = """Great work! This was a nice project with clean code, and you demonstrated a clear knowledge of HTML and CSS. Onward to  the next project!"""
         e = self.browser.find_element(By.XPATH, self.final_text_XPATH)
         self.scroll_into_view(e)
         e.send_keys(msg)
@@ -467,9 +443,9 @@ class Grader:
         self.fill_final_text_section()
         self.submit_project()
 
-        time2grade = time.time()-start
+        time2grade = time.time() - start
         passed = self.did_pass()
-        print('graded project in {0:0.2f}s \tpassing: {0:0.2f}'.format(time2grade, passed))
+        print('{0:0.2} graded project in {0:0.2f}s \tpassing: {0:0.2f}'.format(str(datetime.now()), time2grade, passed))
 
         if log:
             with open('logs.txt', 'a') as f:
@@ -477,7 +453,7 @@ class Grader:
 
 
 def launch_browser(headless=False):
-    ''' launch a Firefox webdriver with disabled notifications,
+    '''Launch a Firefox webdriver with disabled notifications,
         allow page loading, optionally phantom mode
 
     Args:
@@ -512,7 +488,6 @@ def launch_browser(headless=False):
 
 
 if __name__ == '__main__':
-    # start the session
     browser = launch_browser(True)
 
     headless_grader = Grader(browser)
