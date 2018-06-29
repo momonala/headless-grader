@@ -173,7 +173,7 @@ class Grader:
                      .key_up('c') \
                      .key_up(Keys.CONTROL) \
                      .perform()
-        print(f'Copied {lang}!') if self.verbose else 0
+        print('Copied {}!'.format(lang)) if self.verbose else 0
 
     def validate_HTML(self):
         # head over the HTML validator and look for errors
@@ -233,7 +233,15 @@ class Grader:
         if self.h >= 3:
             self.has_headers = True
         if self.verbose:
-            print(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \nlink: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \nCSS class {self.has_CSS_class}')
+            print('divs: {} \nh-tags: {} \nimg: {} \nlink: {} \nlinked-CSS: {} \nCSS class {}'\
+            .format(
+                self.divs,
+                self.h,
+                self.has_img,
+                self.has_link,
+                self.has_linked_CSS,
+                self.has_CSS_class
+            ))
 
     def read_CSS(self):
         # read the CSS from the clipboard and analyze
@@ -246,18 +254,18 @@ class Grader:
             self.has_CSS_selectors = True
 
         if self.verbose:
-            print(f'CSS selectors: {self.num_CSS_selectors} Passed {self.has_CSS_selectors}')
+            print('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
 
     def grade_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
         #       '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[SEC]/div/div/ng-form/div[PASS-FAIL]/div/label/input'
-        _fail1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[1]/div/label/input'
-        _pass1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div/label/input'
-        _text1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
-        _text2 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'
-        _save1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save3 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[2]/div/button[1]'
+        _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[1]/div/label/input'.format(section)
+        _pass1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[2]/div/label/input'.format(section)
+        _text1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'.format(section)
+        _text2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'.format(section)
+        _save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[3]/div[2]/div/button[1]'.format(section)
+        _save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[2]/div[2]/div/button[1]'.format(section)
+        _save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[4]/div[2]/div/button[1]'.format(section)
 
         if criteria is True:
             _grade = _pass1
@@ -450,7 +458,7 @@ class Grader:
 
         if log:
             with open('logs.txt', 'a') as f:
-                f.write(f'{str(datetime.now())}, {passed}, {time2grade}')
+                f.write('{}, {}, {}\n'.format(str(datetime.now()), passed, time2grade))
 
 
 def launch_browser(headless=False):
