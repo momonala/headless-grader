@@ -177,7 +177,7 @@ class Grader:
 
     def validate_HTML(self):
         # head over the HTML validator and look for errors
-        self.browser.execute_script(f"$(window.open('{self.HTML_validation_page}'))")
+        self.browser.execute_script("$(window.open('{}'))".format(self.HTML_validation_page))
         self.SLEEP()
         self.browser.switch_to_window(self.browser.window_handles[2])
         HTML_input = self.browser.find_element(By.XPATH, self.HTML_input_XPATH)
@@ -323,7 +323,7 @@ class Grader:
         self.grade_section(2, self.has_linked_CSS, pass_msg, fail_msg)
 
         pass_msg = """You passed the validations, great work!"""
-        fail_msg = f"""Unfortunately you did not pass the validation. Specfically, I found the errors below. Please ask your mentor if you need help solving these errors. Good luck!\n{self.html_val_error_msgs}"""
+        fail_msg = """Unfortunately you did not pass the validation. Specfically, I found the errors below. Please ask your mentor if you need help solving these errors. Good luck!\n{}""".format(self.html_val_error_msgs)
         self.grade_section(3, self.HTML_validation, pass_msg, fail_msg)
 
         pass_msg = """Great work with the header tags! You know your stuff :)"""
