@@ -37,7 +37,8 @@ class Grader:
 
         # FOR SWITCHING TABS INSIDE GRADING
         self.code_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[3]'
-        self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[4]'
+        # self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[4]'
+        self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[5]/a'
 
         # FOR HTML VALIDATION
         self.HTML_validation_page = 'https://validator.w3.org/#validate_by_input'
@@ -172,7 +173,7 @@ class Grader:
                      .key_up('c') \
                      .key_up(Keys.CONTROL) \
                      .perform()
-        print('Copied {lang}!') if self.verbose else 0
+        print(f'Copied {lang}!') if self.verbose else 0
 
     def validate_HTML(self):
         # head over the HTML validator and look for errors
@@ -250,13 +251,13 @@ class Grader:
     def grade_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
         #       '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[SEC]/div/div/ng-form/div[PASS-FAIL]/div/label/input'
-        _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[1]/div/label/input'
-        _pass1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div/label/input'
-        _text1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
-        _text2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'
-        _save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[2]/div/button[1]'
+        _fail1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[1]/div/label/input'
+        _pass1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div/label/input'
+        _text1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text2 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'
+        _save1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save3 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[2]/div/button[1]'
 
         if criteria is True:
             _grade = _pass1
@@ -443,9 +444,9 @@ class Grader:
         self.fill_final_text_section()
         self.submit_project()
 
-        time2grade = time.time() - start
+        time2grade = "{0:.2f}".format(time.time() - start)
         passed = self.did_pass()
-        print('{0:0.2} graded project in {0:0.2f}s \tpassing: {0:0.2f}'.format(str(datetime.now()), time2grade, passed))
+        print('{} \tgraded project in {}s \tpassing: {}'.format(str(datetime.now()), time2grade, passed))
 
         if log:
             with open('logs.txt', 'a') as f:
@@ -488,7 +489,7 @@ def launch_browser(headless=False):
 
 
 if __name__ == '__main__':
-    browser = launch_browser(True)
+    browser = launch_browser()
 
     headless_grader = Grader(browser)
     headless_grader.login()
