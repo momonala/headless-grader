@@ -20,7 +20,7 @@ def grade():
         browser = launch_browser(headless=args.headless)
 
         headless_grader = Grader(browser, verbose=False)
-        # headless_grader.login()
+        headless_grader.login()
         headless_grader.refresh_queue()
 
         if headless_grader.get_project():
