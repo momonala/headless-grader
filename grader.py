@@ -37,8 +37,8 @@ class Grader:
 
         # FOR SWITCHING TABS INSIDE GRADING
         self.code_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[3]'
-        # self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[4]'
-        self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[5]/a'
+        self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[4]'
+        # self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[5]/a'
 
         # FOR HTML VALIDATION
         self.HTML_validation_page = 'https://validator.w3.org/#validate_by_input'
@@ -81,7 +81,7 @@ class Grader:
         # utility function to wait for pages to render
         time.sleep(seconds)
 
-    def scroll_into_view(self, e):
+    def _scroll_into_view(self, e):
         # scroll an element into view
         self.browser.execute_script("return arguments[0].scrollIntoView();", e)
 
@@ -120,17 +120,17 @@ class Grader:
             print('No projects to grade') if self.verbose else 0
             return False
 
-    def get_code_tab(self):
+    def _get_code_tab(self):
         # in project, get the code tab where we can read code
         self.browser.find_element(By.XPATH, self.code_tab_XPATH).click()
 
-    def get_preview_tab(self):
+    def _get_preview_tab(self):
         # in project, get the preview tab where we can grade
         self.browser.find_element(By.XPATH, self.review_tab_XPATH).click()
 
-    def check_files(self):
+    def _check_files(self):
         # go to code review tab, check for HTML and CSS files
-        self.get_code_tab()
+        self._get_code_tab()
         self.code_files_tab = 'code-section-item-title'
         self.code_files = self.browser.find_elements(By.CLASS_NAME, self.code_files_tab)
 
@@ -149,7 +149,7 @@ class Grader:
             self.has_code = True
         print('Intial File Analysis Complete!') if self.verbose else 0
 
-    def copy_code(self, lang):
+    def _copy_code(self, lang):
         # open the current code tab and copy to the clipboard
         if lang == 'html':
             page = self.HTML_page
@@ -158,11 +158,11 @@ class Grader:
         else:
             print('Error in copying! Wrong file type!') if self.verbose else 0
 
-        self.scroll_into_view(page)
+        self._scroll_into_view(page)
         page.click()
         self.SLEEP(1)
         element = self.browser.find_element(By.CSS_SELECTOR, self.code_body_CSS_selector)
-        self.scroll_into_view(element)
+        self._scroll_into_view(element)
         self.SLEEP(2)
         ActionChains(self.browser) \
                      .click(element) \
@@ -175,7 +175,7 @@ class Grader:
                      .perform()
         print('Copied {}!'.format(lang)) if self.verbose else 0
 
-    def validate_HTML(self):
+    def _validate_HTML(self):
         # head over the HTML validator and look for errors
         self.browser.execute_script("$(window.open('{}'))".format(self.HTML_validation_page))
         self.SLEEP()
@@ -211,7 +211,7 @@ class Grader:
         self.browser.switch_to_window(self.browser.window_handles[1])
         print('HTML Validation Complete!') if self.verbose else 0
 
-    def read_HTML(self):
+    def _read_HTML(self):
         # read the HTML from the clipboard and analyze
         html_raw = Tk().clipboard_get()
         HTML = html_raw.split('\n')
@@ -243,7 +243,7 @@ class Grader:
                 self.has_CSS_class
             ))
 
-    def read_CSS(self):
+    def _read_CSS(self):
         # read the CSS from the clipboard and analyze
         css_raw = Tk().clipboard_get()
         CSS = css_raw.split('\n')
@@ -256,7 +256,7 @@ class Grader:
         if self.verbose:
             print('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
 
-    def grade_section(self, section, criteria, pass_msg, fail_msg):
+    def _grade_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
         #       '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[SEC]/div/div/ng-form/div[PASS-FAIL]/div/label/input'
         _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[1]/div/label/input'.format(section)
@@ -278,25 +278,25 @@ class Grader:
             # click the pass or fail button for this section
             # grading for the 1st time, or 2nd time and failed before
             e = self.browser.find_element(By.XPATH, _grade)
-            self.scroll_into_view(e)
+            self._scroll_into_view(e)
             e.click()
 
             try:
                 # first time grading
                 e = self.browser.find_element(By.XPATH, _text1)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.send_keys(msg)
                 e = self.browser.find_element(By.XPATH, _save1)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.click()
                 return 1
             except NoSuchElementException as e:
                 # second time grading, failed previously
                 e = self.browser.find_element(By.XPATH, _text2)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.send_keys(msg)
                 e = self.browser.find_element(By.XPATH, _save3)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.click()
                 return 1
 
@@ -304,55 +304,55 @@ class Grader:
             # already graded and passed, somtimes finicky about XPATH...
             try:
                 e = self.browser.find_element(By.XPATH, _save1)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.click()
                 return 1
             except NoSuchElementException as e:
                 e = self.browser.find_element(By.XPATH, _save2)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.click()
                 return 1
 
-    def grade_section_FIRST9(self):
+    def _grade_section_FIRST9(self):
         pass_msg = """Both files were found, great work!"""
         fail_msg = """Either CSS or HTML file was missing :("""
-        self.grade_section(1, self.has_code, pass_msg, fail_msg)
+        self._grade_section(1, self.has_code, pass_msg, fail_msg)
 
         pass_msg = """Nice job with the linked CSS!"""
         fail_msg = """You need to use linked CSS to pass this part :("""
-        self.grade_section(2, self.has_linked_CSS, pass_msg, fail_msg)
+        self._grade_section(2, self.has_linked_CSS, pass_msg, fail_msg)
 
         pass_msg = """You passed the validations, great work!"""
         fail_msg = """Unfortunately you did not pass the validation. Specfically, I found the errors below. Please ask your mentor if you need help solving these errors. Good luck!\n{}""".format(self.html_val_error_msgs)
-        self.grade_section(3, self.HTML_validation, pass_msg, fail_msg)
+        self._grade_section(3, self.HTML_validation, pass_msg, fail_msg)
 
         pass_msg = """Great work with the header tags! You know your stuff :)"""
         fail_msg = """Please make sure you have the corrent number of header tags, which is at least 3. See this link to learn more: https://www.w3schools.com/tags/tag_header.asp"""
-        self.grade_section(4, self.has_headers, pass_msg, fail_msg)
+        self._grade_section(4, self.has_headers, pass_msg, fail_msg)
 
         pass_msg = 'Great work using the div tags!'
         fail_msg = 'Please make sure you have the corrent number of div tags, which is at least 3. See this link to learn more: https://www.w3schools.com/Tags/tag_div.asp'
-        self.grade_section(5, self.has_divs, pass_msg, fail_msg)
+        self._grade_section(5, self.has_divs, pass_msg, fail_msg)
 
         pass_msg = """Nice work using the CSS Selectors! You've demonstrated some solid knowledge on these."""
         fail_msg = """Please make sure you have the corrent number of CSS Selectors, which is at least 3. Please check out https://www.w3schools.com/cssref/css_selectors.asp for more info"""
-        self.grade_section(6, self.has_CSS_selectors, pass_msg, fail_msg)
+        self._grade_section(6, self.has_CSS_selectors, pass_msg, fail_msg)
 
         pass_msg = 'Nice work with the CSS selectors!'
         fail_msg = 'Please make sure you use CSS class selectors! Please see https://www.w3schools.com/cssref/css_selectors.asp if you are have trouble.'
-        self.grade_section(7, self.has_CSS_class, pass_msg, fail_msg)
+        self._grade_section(7, self.has_CSS_class, pass_msg, fail_msg)
 
         pass_msg = """Great work using img tags, you've demonstrated some solid knowledge!"""
         fail_msg = """ Unfortunately you did not pass this section. Please see https://www.w3schools.com/tags/tag_img.asp if you are having difficulty with using image tags"""
-        self.grade_section(8, self.has_img, pass_msg, fail_msg)
+        self._grade_section(8, self.has_img, pass_msg, fail_msg)
 
         pass_msg = """Great work using links!"""
         fail_msg = """Please see https://www.w3schools.com/html/html_links.asp if you are having difficulty with images"""
-        self.grade_section(9, self.has_link, pass_msg, fail_msg)
+        self._grade_section(9, self.has_link, pass_msg, fail_msg)
 
         print('sections 1-9 graded!') if self.verbose else 0
 
-    def grade_section_LAST(self):
+    def _grade_section_LAST(self):
         # last (section 10) must be different for some reason...
         criteria = True
         pass_msg = 'Great work!'
@@ -375,26 +375,26 @@ class Grader:
         try:
             # if not graded before
             e = self.browser.find_element(By.XPATH, _grade)
-            self.scroll_into_view(e)
+            self._scroll_into_view(e)
             e.click()
             e = self.browser.find_element(By.XPATH, _text1)
-            self.scroll_into_view(e)
+            self._scroll_into_view(e)
             e.send_keys(msg)
             e = self.browser.find_element(By.XPATH, _save1)
-            self.scroll_into_view(e)
+            self._scroll_into_view(e)
             e.click()
         except NoSuchElementException:
             # if already graded - two options...
             try:
                 e = self.browser.find_element(By.XPATH, _save3)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.click()
             except NoSuchElementException:
                 e = self.browser.find_element(By.XPATH, _save2)
-                self.scroll_into_view(e)
+                self._scroll_into_view(e)
                 e.click()
 
-    def fill_final_text_section(self):
+    def _fill_final_text_section(self):
         # fill out the final section of text (good job message)
         self.all_sections = [self.has_code,
                              self.HTML_validation,
@@ -406,11 +406,11 @@ class Grader:
                              self.has_CSS_class,
                              self.has_CSS_selectors]
         if False in self.all_sections:
-            msg = """Great work on this project so far! You're almost there. Please try to fix the errors above. If you need help, please ask your mentor you use the discussion forums. And good luck on the resubmission!"""
+            msg = """Great work on this project so far! You're almost there. Please try to fix the errors above. If you need help, please ask your mentor you use the discussion forums. And good luck on the resubmission! Additionally, if you have any feedback on the reivew, I would be happy to hear back from you with either a rating or comments! Thanks"""
         else:
-            msg = """Great work! This was a nice project with clean code, and you demonstrated a clear knowledge of HTML and CSS. Onward to  the next project!"""
+            msg = """Great work! This was a nice project with clean code, and you demonstrated a clear knowledge of HTML and CSS. Onward to  the next project! Additionally, if you have any feedback on the reivew, I would be happy to hear back from you with either a rating or comments! Thanks"""
         e = self.browser.find_element(By.XPATH, self.final_text_XPATH)
-        self.scroll_into_view(e)
+        self._scroll_into_view(e)
         e.send_keys(msg)
         e = self.browser.find_element(By.XPATH, self.final_save_button_XPATH)
         e.click()
@@ -422,7 +422,7 @@ class Grader:
         self.browser.find_element(By.XPATH, self.confirm_XPATH).click()
         print('Project Submitted!') if self.verbose else 0
 
-    def did_pass(self):
+    def _did_pass(self):
         if False in [self.has_code,
                      self.HTML_validation,
                      self.has_img,
@@ -439,21 +439,21 @@ class Grader:
     def grade_project(self, log=True):
         # grade the damn project!
         start = time.time()
-        self.check_files()
-        self.copy_code('html')
-        self.validate_HTML()
-        self.read_HTML()
-        self.copy_code('css')
-        self.read_CSS()
+        self._check_files()
+        self._copy_code('html')
+        self._validate_HTML()
+        self._read_HTML()
+        self._copy_code('css')
+        self._read_CSS()
 
-        self.get_preview_tab()
-        self.grade_section_FIRST9()
-        self.grade_section_LAST()
-        self.fill_final_text_section()
+        self._get_preview_tab()
+        self._grade_section_FIRST9()
+        self._grade_section_LAST()
+        self._fill_final_text_section()
         self.submit_project()
 
         time2grade = "{0:.2f}".format(time.time() - start)
-        passed = self.did_pass()
+        passed = self._did_pass()
         print('{} \tgraded project in {}s \tpassing: {}'.format(str(datetime.now()), time2grade, passed))
 
         if log:
