@@ -5,4 +5,5 @@ __pycache__/
 credentials.py
 geckodriver.log
 logs.txt
+grades.txt
 

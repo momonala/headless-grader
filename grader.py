@@ -457,7 +457,7 @@ class Grader:
         print('{} \tgraded project in {}s \tpassing: {}'.format(str(datetime.now()), time2grade, passed))
 
         if log:
-            with open('logs.txt', 'a') as f:
+            with open('grades.txt', 'a') as f:
                 f.write('{}, {}, {}\n'.format(str(datetime.now()), passed, time2grade))
 
 
