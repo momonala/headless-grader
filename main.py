@@ -34,14 +34,13 @@ def grade():
         err_msg = '******* FAILED {} ************ '.format(format(str(datetime.now())))
         print(err_msg)
 
-        with open('grades.txt', 'a') as f:
+        with open('logs.txt', 'a') as f:
             f.write('******************************************************\n')
             f.write(err_msg + '\n')
             f.write(traceback.format_exc())
 
         headless_grader.browser.quit()
 
-grade()
 schedule.every(30).minutes.do(grade)
 
 while True:

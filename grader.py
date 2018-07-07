@@ -323,7 +323,7 @@ class Grader:
         self._grade_section(2, self.has_linked_CSS, pass_msg, fail_msg)
 
         pass_msg = """You passed the validations, great work!"""
-        fail_msg = """Unfortunately you did not pass the validation. Specfically, I found the errors below. Please ask your mentor if you need help solving these errors. Good luck!\n{}""".format(self.html_val_error_msgs)
+        fail_msg = """Unfortunately you did not pass the validation. Specfically, I found the errors below. Keep in mind that though page can still render to your browser, there may be validation issues. If left unsolved, your code may eventually fail on different browsers. Please ask your mentor if you need help solving these errors. Good luck!\n{}""".format(self.html_val_error_msgs)
         self._grade_section(3, self.HTML_validation, pass_msg, fail_msg)
 
         pass_msg = """Great work with the header tags! You know your stuff :)"""
