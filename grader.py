@@ -314,40 +314,46 @@ class Grader:
                 return 1
 
     def _grade_section_FIRST9(self):
-        pass_msg = """Both files were found, great work!"""
-        fail_msg = """Either CSS or HTML file was missing :("""
+        pass_msg = "Both files were found, great work!"
+        fail_msg = "Either CSS or HTML file was missing :("
         self._grade_section(1, self.has_code, pass_msg, fail_msg)
 
-        pass_msg = """Nice job with the linked CSS!"""
-        fail_msg = """You need to use linked CSS to pass this part :("""
+        pass_msg = "Nice job with the linked CSS!"
+        fail_msg = "You need to use linked CSS to pass this part :("
         self._grade_section(2, self.has_linked_CSS, pass_msg, fail_msg)
 
-        pass_msg = """You passed the validations, great work!"""
-        fail_msg = """Unfortunately you did not pass the validation. Specfically, I found the errors below. Keep in mind that though page can still render to your browser, there may be validation issues. If left unsolved, your code may eventually fail on different browsers. Please ask your mentor if you need help solving these errors. Good luck!\n{}""".format(self.html_val_error_msgs)
+        pass_msg = "You passed the validations, great work!"
+        fail_msg = ("Unfortunately you did not pass the validation. Specfically, "
+                    "I found the errors below. Keep in mind that though page can still render to your browser, "
+                    "there may be validation issues. If left unsolved, your code may eventually fail on different browsers. "
+                    "Please ask check out the study groups or discussion forums if you need help solving these errors. "
+                    "Good luck!\n{}").format(self.html_val_error_msgs)
         self._grade_section(3, self.HTML_validation, pass_msg, fail_msg)
 
-        pass_msg = """Great work with the header tags! You know your stuff :)"""
-        fail_msg = """Please make sure you have the corrent number of header tags, which is at least 3. See this link to learn more: https://www.w3schools.com/tags/tag_header.asp"""
+        pass_msg = "Great work with the header tags! You know your stuff :)"
+        fail_msg = ("Please make sure you have the corrent number of header tags, "
+                    "which is at least 3. See this link to learn more: https://www.w3schools.com/tags/tag_header.asp")
         self._grade_section(4, self.has_headers, pass_msg, fail_msg)
 
         pass_msg = 'Great work using the div tags!'
         fail_msg = 'Please make sure you have the corrent number of div tags, which is at least 3. See this link to learn more: https://www.w3schools.com/Tags/tag_div.asp'
         self._grade_section(5, self.has_divs, pass_msg, fail_msg)
 
-        pass_msg = """Nice work using the CSS Selectors! You've demonstrated some solid knowledge on these."""
-        fail_msg = """Please make sure you have the corrent number of CSS Selectors, which is at least 3. Please check out https://www.w3schools.com/cssref/css_selectors.asp for more info"""
+        pass_msg = "Nice work using the CSS Selectors! You've demonstrated some solid knowledge on these."
+        fail_msg = "Please make sure you have the corrent number of CSS Selectors, which is at least 3. "
+                   "Please check out https://www.w3schools.com/cssref/css_selectors.asp for more info"
         self._grade_section(6, self.has_CSS_selectors, pass_msg, fail_msg)
 
         pass_msg = 'Nice work with the CSS selectors!'
         fail_msg = 'Please make sure you use CSS class selectors! Please see https://www.w3schools.com/cssref/css_selectors.asp if you are have trouble.'
         self._grade_section(7, self.has_CSS_class, pass_msg, fail_msg)
 
-        pass_msg = """Great work using img tags, you've demonstrated some solid knowledge!"""
-        fail_msg = """ Unfortunately you did not pass this section. Please see https://www.w3schools.com/tags/tag_img.asp if you are having difficulty with using image tags"""
+        pass_msg = "Great work using img tags, you've demonstrated some solid knowledge!"
+        fail_msg = " Unfortunately you did not pass this section. Please see https://www.w3schools.com/tags/tag_img.asp if you are having difficulty with using image tags."
         self._grade_section(8, self.has_img, pass_msg, fail_msg)
 
-        pass_msg = """Great work using links!"""
-        fail_msg = """Please see https://www.w3schools.com/html/html_links.asp if you are having difficulty with images"""
+        pass_msg = "Great work using links!"
+        fail_msg = "Please see https://www.w3schools.com/html/html_links.asp if you are having difficulty with images"
         self._grade_section(9, self.has_link, pass_msg, fail_msg)
 
         print('sections 1-9 graded!') if self.verbose else 0
@@ -406,9 +412,16 @@ class Grader:
                              self.has_CSS_class,
                              self.has_CSS_selectors]
         if False in self.all_sections:
-            msg = """Great work on this project so far! You're almost there. Please try to fix the errors above. If you need help, please ask your mentor you use the discussion forums. And good luck on the resubmission! Additionally, if you have any feedback on the reivew, I would be happy to hear back from you with either a rating or comments! Thanks"""
+            msg = ("Great work on this project so far! You're almost there.
+                   "Please try to fix the errors above. If you need personal help, "
+                   "please check out the study groups or discussion forums (https://knowledge.udacity.com/). "
+                   "And good luck on the resubmission! Additionally, if you have any feedback on the reivew, "
+                   "I would be happy to hear back from you with either a rating or comments! Thanks")
         else:
-            msg = """Great work! This was a nice project with clean code, and you demonstrated a clear knowledge of HTML and CSS. Onward to  the next project! Additionally, if you have any feedback on the reivew, I would be happy to hear back from you with either a rating or comments! Thanks"""
+            msg = ('Great work! This was a nice project with clean code, '
+                   'and you demonstrated a clear knowledge of HTML and CSS. '
+                   'Onward to  the next project! Additionally, if you have any feedback on the reivew, '
+                    'I would be happy to hear back from you with either a rating or comments! Thanks)
         e = self.browser.find_element(By.XPATH, self.final_text_XPATH)
         self._scroll_into_view(e)
         e.send_keys(msg)
@@ -492,7 +505,7 @@ def launch_browser(headless=False):
     browser = Firefox(firefox_profile=fp,
                       executable_path='geckodriver',
                       firefox_options=options)
-    browser.implicitly_wait(10)
+    browser.implicitly_wait(59)
     return browser
 
 
