@@ -412,7 +412,7 @@ class Grader:
                              self.has_CSS_class,
                              self.has_CSS_selectors]
         if False in self.all_sections:
-            msg = ("Great work on this project so far! You're almost there.
+            msg = ("Great work on this project so far! You're almost there. "
                    "Please try to fix the errors above. If you need personal help, "
                    "please check out the study groups or discussion forums (https://knowledge.udacity.com/). "
                    "And good luck on the resubmission! Additionally, if you have any feedback on the reivew, "
@@ -421,7 +421,7 @@ class Grader:
             msg = ('Great work! This was a nice project with clean code, '
                    'and you demonstrated a clear knowledge of HTML and CSS. '
                    'Onward to  the next project! Additionally, if you have any feedback on the reivew, '
-                    'I would be happy to hear back from you with either a rating or comments! Thanks)
+                   'I would be happy to hear back from you with either a rating or comments! Thanks')
         e = self.browser.find_element(By.XPATH, self.final_text_XPATH)
         self._scroll_into_view(e)
         e.send_keys(msg)
