@@ -340,8 +340,8 @@ class Grader:
         self._grade_section(5, self.has_divs, pass_msg, fail_msg)
 
         pass_msg = "Nice work using the CSS Selectors! You've demonstrated some solid knowledge on these."
-        fail_msg = "Please make sure you have the corrent number of CSS Selectors, which is at least 3. "
-                   "Please check out https://www.w3schools.com/cssref/css_selectors.asp for more info"
+        fail_msg = ("Please make sure you have the corrent number of CSS Selectors, which is at least 3. "
+                    "Please check out https://www.w3schools.com/cssref/css_selectors.asp for more info")
         self._grade_section(6, self.has_CSS_selectors, pass_msg, fail_msg)
 
         pass_msg = 'Nice work with the CSS selectors!'
