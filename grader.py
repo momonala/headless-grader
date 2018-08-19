@@ -233,15 +233,8 @@ class Grader:
         if self.h >= 3:
             self.has_headers = True
         if self.verbose:
-            print('divs: {} \nh-tags: {} \nimg: {} \nlink: {} \nlinked-CSS: {} \nCSS class {}'\
-            .format(
-                self.divs,
-                self.h,
-                self.has_img,
-                self.has_link,
-                self.has_linked_CSS,
-                self.has_CSS_class
-            ))
+            print(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
+                  f'link: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \nCSS class {self.has_CSS_class}')
 
     def _read_CSS(self):
         # read the CSS from the clipboard and analyze
@@ -415,13 +408,13 @@ class Grader:
             msg = ("Great work on this project so far! You're almost there. "
                    "Please try to fix the errors above. If you need personal help, "
                    "please check out the study groups or discussion forums (https://knowledge.udacity.com/). "
-                   "And good luck on the resubmission! Additionally, if you have any feedback on the reivew, "
-                   "I would be happy to hear back from you with either a rating or comments! Thanks")
+                   "And good luck on the resubmission! Additionally, if you have any feedback on how I can improve, "
+                   "let me know! Thanks.")
         else:
             msg = ('Great work! This was a nice project with clean code, '
                    'and you demonstrated a clear knowledge of HTML and CSS. '
-                   'Onward to  the next project! Additionally, if you have any feedback on the reivew, '
-                   'I would be happy to hear back from you with either a rating or comments! Thanks')
+                   'Onward to  the next project! Additionally, if you have any feedback on how I can improve, '
+                   'let me know! Thanks')
         e = self.browser.find_element(By.XPATH, self.final_text_XPATH)
         self._scroll_into_view(e)
         e.send_keys(msg)
