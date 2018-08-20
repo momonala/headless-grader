@@ -408,7 +408,7 @@ class Grader:
             msg = ("Great work on this project so far! You're almost there. "
                    "Please try to fix the errors above. If you need personal help, "
                    "please check out the study groups or discussion forums (https://knowledge.udacity.com/). "
-                   "And good luck on the resubmission!)
+                   "And good luck on the resubmission!")
         else:
             msg = ('Great work! This was a nice project with clean code, '
                    'and you demonstrated a clear knowledge of HTML and CSS. '
