@@ -13,11 +13,12 @@ from credentials import credentials
 
 
 class Grader:
-    def __init__(self, browser, verbose=True):
+    def __init__(self, browser, verbose=True, log=True):
         creds = credentials()
 
         self.browser = browser
         self.verbose = verbose
+        self.log = log
 
         # FOR LOGIN ROUTINE
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
@@ -31,6 +32,9 @@ class Grader:
         self.queue_full_XPATH = '/html/body/div[2]/div/div/div/section/div/div/div/div[2]/label'
         self.queue_now_XPATH = '/html/body/div[2]/div/div/div/section/div/footer/button'
         self.queue_refresh_button_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[2]/button'
+
+        # CHECK IF GRADING ML OR WEB
+        self.ml_project = None
 
         # FOR GETTING PENDING PROJECTS FROM THE DASHBOARD
         self.project_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/section[1]/div/ul/li/div[4]/a'
@@ -106,6 +110,17 @@ class Grader:
             self.browser.find_element(By.XPATH, self.queue_refresh_button_XPATH).click()
         print('Queue Refresh Sucessful!') if self.verbose else 0
 
+    def check_if_ml(self):
+        e = self.browser.find_element_by_xpath('/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/h1')
+        if e.text == 'Use a Pre-trained Image Classifier to Identify Dog Breeds':
+            self.ml_project = True
+            print('Grading ML Project') if self.verbose else 0
+        else:
+            self.ml_project = False
+            print('Grading Intro to Web Project') if self.verbose else 0
+
+        return None
+
     def get_project(self):
         # open the new project, wait, then switch control to new tab
         try:
@@ -114,6 +129,7 @@ class Grader:
             print('Accessed new project!') if self.verbose else 0
             self.browser.switch_to_window(self.browser.window_handles[1])
             self.SLEEP(4)
+            self.check_if_ml()
             return True
 
         except NoSuchElementException as e:
@@ -128,6 +144,7 @@ class Grader:
         # in project, get the preview tab where we can grade
         self.browser.find_element(By.XPATH, self.review_tab_XPATH).click()
 
+    # ------------------------------- WEB ----------------------------------------------------
     def _check_files(self):
         # go to code review tab, check for HTML and CSS files
         self._get_code_tab()
@@ -249,7 +266,7 @@ class Grader:
         if self.verbose:
             print('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
 
-    def _grade_section(self, section, criteria, pass_msg, fail_msg):
+    def _grade_web_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
         #       '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[SEC]/div/div/ng-form/div[PASS-FAIL]/div/label/input'
         _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[1]/div/label/input'.format(section)
@@ -306,14 +323,14 @@ class Grader:
                 e.click()
                 return 1
 
-    def _grade_section_FIRST9(self):
+    def _grade_web_section_FIRST9(self):
         pass_msg = "Both files were found, great work!"
         fail_msg = "Either CSS or HTML file was missing :("
-        self._grade_section(1, self.has_code, pass_msg, fail_msg)
+        self._grade_web_section(1, self.has_code, pass_msg, fail_msg)
 
         pass_msg = "Nice job with the linked CSS!"
         fail_msg = "You need to use linked CSS to pass this part :("
-        self._grade_section(2, self.has_linked_CSS, pass_msg, fail_msg)
+        self._grade_web_section(2, self.has_linked_CSS, pass_msg, fail_msg)
 
         pass_msg = "You passed the validations, great work!"
         fail_msg = ("Unfortunately you did not pass the validation. Specfically, "
@@ -321,37 +338,37 @@ class Grader:
                     "there may be validation issues. If left unsolved, your code may eventually fail on different browsers. "
                     "Please ask check out the study groups or discussion forums if you need help solving these errors. "
                     "Good luck!\n{}").format(self.html_val_error_msgs)
-        self._grade_section(3, self.HTML_validation, pass_msg, fail_msg)
+        self._grade_web_section(3, self.HTML_validation, pass_msg, fail_msg)
 
         pass_msg = "Great work with the header tags! You know your stuff :)"
         fail_msg = ("Please make sure you have the corrent number of header tags, "
                     "which is at least 3. See this link to learn more: https://www.w3schools.com/tags/tag_header.asp")
-        self._grade_section(4, self.has_headers, pass_msg, fail_msg)
+        self._grade_web_section(4, self.has_headers, pass_msg, fail_msg)
 
         pass_msg = 'Great work using the div tags!'
         fail_msg = 'Please make sure you have the corrent number of div tags, which is at least 3. See this link to learn more: https://www.w3schools.com/Tags/tag_div.asp'
-        self._grade_section(5, self.has_divs, pass_msg, fail_msg)
+        self._grade_web_section(5, self.has_divs, pass_msg, fail_msg)
 
         pass_msg = "Nice work using the CSS Selectors! You've demonstrated some solid knowledge on these."
         fail_msg = ("Please make sure you have the corrent number of CSS Selectors, which is at least 3. "
                     "Please check out https://www.w3schools.com/cssref/css_selectors.asp for more info")
-        self._grade_section(6, self.has_CSS_selectors, pass_msg, fail_msg)
+        self._grade_web_section(6, self.has_CSS_selectors, pass_msg, fail_msg)
 
         pass_msg = 'Nice work with the CSS selectors!'
         fail_msg = 'Please make sure you use CSS class selectors! Please see https://www.w3schools.com/cssref/css_selectors.asp if you are have trouble.'
-        self._grade_section(7, self.has_CSS_class, pass_msg, fail_msg)
+        self._grade_web_section(7, self.has_CSS_class, pass_msg, fail_msg)
 
         pass_msg = "Great work using img tags, you've demonstrated some solid knowledge!"
         fail_msg = " Unfortunately you did not pass this section. Please see https://www.w3schools.com/tags/tag_img.asp if you are having difficulty with using image tags."
-        self._grade_section(8, self.has_img, pass_msg, fail_msg)
+        self._grade_web_section(8, self.has_img, pass_msg, fail_msg)
 
         pass_msg = "Great work using links!"
         fail_msg = "Please see https://www.w3schools.com/html/html_links.asp if you are having difficulty with images"
-        self._grade_section(9, self.has_link, pass_msg, fail_msg)
+        self._grade_web_section(9, self.has_link, pass_msg, fail_msg)
 
         print('sections 1-9 graded!') if self.verbose else 0
 
-    def _grade_section_LAST(self):
+    def _grade_web_section_LAST(self):
         # last (section 10) must be different for some reason...
         criteria = True
         pass_msg = 'Great work!'
@@ -393,7 +410,7 @@ class Grader:
                 self._scroll_into_view(e)
                 e.click()
 
-    def _fill_final_text_section(self):
+    def _fill_final_text_section_web(self):
         # fill out the final section of text (good job message)
         self.all_sections = [self.has_code,
                              self.HTML_validation,
@@ -441,9 +458,9 @@ class Grader:
         else:
             return True
 
-    def grade_project(self, log=True):
+    def _grade_web_project(self):
         # grade the damn project!
-        start = time.time()
+        self.start = time.time()
         self._check_files()
         self._copy_code('html')
         self._validate_HTML()
@@ -452,18 +469,151 @@ class Grader:
         self._read_CSS()
 
         self._get_preview_tab()
-        self._grade_section_FIRST9()
-        self._grade_section_LAST()
-        self._fill_final_text_section()
+        self._grade_web_section_FIRST9()
+        self._grade_web_section_LAST()
+        self._fill_final_text_section_web()
         self.submit_project()
 
-        time2grade = "{0:.2f}".format(time.time() - start)
-        passed = self._did_pass()
-        print('{} \tgraded project in {}s \tpassing: {}'.format(str(datetime.now()), time2grade, passed))
+    # ---------------------------- ML -------------------------------------------
+    def grade_ml_section(self, button_X, text_X, save_X, msg, save2_x):
+        try:
+            e = self.browser.find_element(By.XPATH, button_X)
+            self._scroll_into_view(e)
+            e.click()
+            e = self.browser.find_element(By.XPATH, text_X)
+            self._scroll_into_view(e)
+            e.send_keys(msg)
+            e = self.browser.find_element(By.XPATH, save_X)
+            self._scroll_into_view(e)
+            e.click()
+        except NoSuchElementException:
+            # section has likely already been graded
+            e = self.browser.find_element(By.XPATH, save2_x)
+            self._scroll_into_view(e)
+            e.click()
 
-        if log:
-            with open('grades.txt', 'a') as f:
-                f.write('{}, {}, {}\n'.format(str(datetime.now()), passed, time2grade))
+    def _grade_all_ml_sections(self):
+        _button_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div/label/input'
+        _button_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div/label/input'
+        _button_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div/label/input'
+        _button_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div/label/input'
+        _button_x5 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div/label/input'
+        _button_x6 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div/label/input'
+        _button_x7 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div/label/input'
+        _button_x8 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div/label/input'
+        _button_x9 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div/label/input'
+        _button_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div/label/input'
+        _button_x11 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div/label/input'
+        _button_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div/label/input'
+        _button_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[2]/div/label/input'
+
+        _text_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x5 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x6 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x7 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x8 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x9 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x11 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+
+        _save_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x5 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x6 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x7 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x8 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x9 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x11 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+
+        msg_1 = "Great work making use of the time function here. This is a really useful tool to both manipulate the user experience and to check on the performance of your projects, especially as they scale in size and complexity."
+        msg_2 = "Excellent work adding the --dir command line argument! This allows the user to change the working directory as and when required, and doesn't limit them to using just one specified directory."
+        msg_3 = "Same goes for the --arch CLI. You've demonstrated good knowledge of this!"
+        msg_4 = "Nice job with the --dogfile CLI"
+        msg_5 = "Great work ignoring certain file types!"
+        msg_6 = "Brilliant job building the dog label dictionary! This was a tricky part of the project, and proves you have the skills to manipulate data (filenames) to produce a given format, no matter how much the filenames themselves differ. Well done!"
+        msg_7 = "Nice - you've passed in the arguments retrieved from the user (via arg parsing, the defaults are used if the user doesn't specify anything) and passed them correctly to the get_pet_labels function."
+        msg_8 = "Great work here in passing the image directory (the argument obtained using the arg_parser as specified by the user, of by the default argument), the key (filename) and the model architecture to the classifier function. Just to recap this bit - this function then makes calls to the pre-trained image classifier neural network which has been trained on millions of images to learn how to predict what the images you pass to it are."
+        msg_9 = "Formatting looks good!"
+        msg_10 = "Good job here too - We're now directly comparing what the AI model thinks the image is of to what the truth is (in this project, remember we've said that the true values are the manipulated file names). Well done!"
+        msg_11 = "Good stuff - all matches between the true labels (i.e. adjusted filenames) and the AI classifier labels are correctly categorised."
+        msg_12 = "All the displayed outputs match up and are appropriately displayed, good job. "
+        msg_13 = "Brilliant - all model outputs score as expected. Well done."
+
+        _save2_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save2_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2_x5 = ''
+        _save2_x6 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2_x7 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save2_x8 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2_x9 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save2_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2_x11 = ''
+        _save2_x12 = ''
+        _save2_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+
+        self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, save2_x1)
+        self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, save2_x2)
+        self.grade_ml_section(_button_x3, _text_32, _save_x3, msg_3, save2_x3)
+        self.grade_ml_section(_button_x4, _text_x4, _save_x4, msg_4, save2_x4)
+        self.grade_ml_section(_button_x5, _text_x5, _save_x5, msg_5, save2_x5)
+        self.grade_ml_section(_button_x6, _text_x6, _save_x6, msg_6, save2_x6)
+        self.grade_ml_section(_button_x7, _text_x7, _save_x7, msg_7, save2_x7)
+        self.grade_ml_section(_button_x8, _text_x8, _save_x8, msg_8, save2_x8)
+        self.grade_ml_section(_button_x9, _text_x9, _save_x9, msg_9, save2_x9)
+        self.grade_ml_section(_button_x10, _text_x10, _save_x10, msg_10, save2_x10)
+        self.grade_ml_section(_button_x11, _text_x11, _save_x11, msg_11, save2_x11)
+        self.grade_ml_section(_button_x12, _text_x12, _save_x12, msg_12, save2_x12)
+        self.grade_ml_section(_button_x13, _text_x13, _save_x13, msg_13, save2_x13)
+
+    def _fill_final_section_ml(self):
+        msg = "Awesome work on this project! You've demonstrated a solid understanding of using ML classifiers within Python. Onward to the next project!"
+        final_text_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[1]/div/div/textarea'
+        final_save_button_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[2]/div/button[1]'
+
+        e = self.browser.find_element(By.XPATH, final_text_XPATH)
+        self._scroll_into_view(e)
+        e.send_keys(msg)
+        e = self.browser.find_element(By.XPATH, final_save_button_XPATH)
+        e.click()
+
+    def _grade_ML(self):
+        self._get_preview_tab()
+        self._grade_all_ml_sections()
+        self._fill_final_section_ml()
+        self.submit_project()
+
+    # -----------------------------------------------------------------------------
+
+    def _write_logs(self):
+        print('{} \tgraded web project in {}s \tpassing: {}'.format(str(datetime.now()),
+                                                                    "{0:.2f}".format(time.time() - self.start),
+                                                                    self._did_pass()))
+
+        with open('grades.txt', 'a') as f:
+            f.write('{}, {}, {}, {}\n'.format(self.ml_project,
+                                              str(datetime.now()),
+                                              self._did_pass(),
+                                              "{0:.2f}".format(time.time() - self.start)))
+
+    def grade_project(self):
+        if self.ml_project:
+            self._grade_ML()
+        else:
+            self._grade_web_project()
+        if self.log:
+            self._write_logs()
 
 
 def launch_browser(headless=False):
@@ -509,7 +659,8 @@ if __name__ == '__main__':
     headless_grader.refresh_queue()
 
     if headless_grader.get_project():
-        headless_grader.grade_project()
+        if headless_grader.ml_project:
+            headless_grader.grade_project()
 
     headless_grader.SLEEP(3)
     headless_grader.browser.quit()
