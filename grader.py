@@ -19,6 +19,7 @@ class Grader:
         self.browser = browser
         self.verbose = verbose
         self.log = log
+        self.start = time.time()
 
         # FOR LOGIN ROUTINE
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
@@ -493,8 +494,10 @@ class Grader:
             e.click()
 
     def _grade_all_ml_sections(self):
+
+        # button to enter text area
         _button_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div/label/input'
-        _button_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div/label/input'
+        _button_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div/label/input'
         _button_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div/label/input'
         _button_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div/label/input'
         _button_x5 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div/label/input'
@@ -507,6 +510,7 @@ class Grader:
         _button_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div/label/input'
         _button_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[2]/div/label/input'
 
+        # text field
         _text_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[1]/div/div/textarea'
         _text_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
         _text_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
@@ -521,6 +525,7 @@ class Grader:
         _text_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
         _text_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[1]/div/div/textarea'
 
+        # save button
         _save_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
@@ -535,6 +540,7 @@ class Grader:
         _save_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
 
+        # save button
         msg_1 = "Great work making use of the time function here. This is a really useful tool to both manipulate the user experience and to check on the performance of your projects, especially as they scale in size and complexity."
         msg_2 = "Excellent work adding the --dir command line argument! This allows the user to change the working directory as and when required, and doesn't limit them to using just one specified directory."
         msg_3 = "Same goes for the --arch CLI. You've demonstrated good knowledge of this!"
@@ -549,33 +555,34 @@ class Grader:
         msg_12 = "All the displayed outputs match up and are appropriately displayed, good job. "
         msg_13 = "Brilliant - all model outputs score as expected. Well done."
 
-        _save2_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        # if the project has already been graded
+        _save2_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save2_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2_x5 = ''
+        _save2_x5 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x6 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save2_x7 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x8 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save2_x9 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2_x11 = ''
-        _save2_x12 = ''
+        _save2_x11 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save2_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
 
-        self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, save2_x1)
-        self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, save2_x2)
-        self.grade_ml_section(_button_x3, _text_32, _save_x3, msg_3, save2_x3)
-        self.grade_ml_section(_button_x4, _text_x4, _save_x4, msg_4, save2_x4)
-        self.grade_ml_section(_button_x5, _text_x5, _save_x5, msg_5, save2_x5)
-        self.grade_ml_section(_button_x6, _text_x6, _save_x6, msg_6, save2_x6)
-        self.grade_ml_section(_button_x7, _text_x7, _save_x7, msg_7, save2_x7)
-        self.grade_ml_section(_button_x8, _text_x8, _save_x8, msg_8, save2_x8)
-        self.grade_ml_section(_button_x9, _text_x9, _save_x9, msg_9, save2_x9)
-        self.grade_ml_section(_button_x10, _text_x10, _save_x10, msg_10, save2_x10)
-        self.grade_ml_section(_button_x11, _text_x11, _save_x11, msg_11, save2_x11)
-        self.grade_ml_section(_button_x12, _text_x12, _save_x12, msg_12, save2_x12)
-        self.grade_ml_section(_button_x13, _text_x13, _save_x13, msg_13, save2_x13)
+        self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, _save2_x1)
+        self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, _save2_x2)
+        self.grade_ml_section(_button_x3, _text_x3, _save_x3, msg_3, _save2_x3)
+        self.grade_ml_section(_button_x4, _text_x4, _save_x4, msg_4, _save2_x4)
+        self.grade_ml_section(_button_x5, _text_x5, _save_x5, msg_5, _save2_x5)
+        self.grade_ml_section(_button_x6, _text_x6, _save_x6, msg_6, _save2_x6)
+        self.grade_ml_section(_button_x7, _text_x7, _save_x7, msg_7, _save2_x7)
+        self.grade_ml_section(_button_x8, _text_x8, _save_x8, msg_8, _save2_x8)
+        self.grade_ml_section(_button_x9, _text_x9, _save_x9, msg_9, _save2_x9)
+        self.grade_ml_section(_button_x10, _text_x10, _save_x10, msg_10, _save2_x10)
+        self.grade_ml_section(_button_x11, _text_x11, _save_x11, msg_11, _save2_x11)
+        self.grade_ml_section(_button_x12, _text_x12, _save_x12, msg_12, _save2_x12)
+        self.grade_ml_section(_button_x13, _text_x13, _save_x13, msg_13, _save2_x13)
 
     def _fill_final_section_ml(self):
         msg = "Awesome work on this project! You've demonstrated a solid understanding of using ML classifiers within Python. Onward to the next project!"
@@ -597,15 +604,11 @@ class Grader:
     # -----------------------------------------------------------------------------
 
     def _write_logs(self):
-        print('{} \tgraded web project in {}s \tpassing: {}'.format(str(datetime.now()),
-                                                                    "{0:.2f}".format(time.time() - self.start),
-                                                                    self._did_pass()))
-
+        proj_type = 'ML' if self.ml_project else 'web'
+        output = f'{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
+        print(output)
         with open('grades.txt', 'a') as f:
-            f.write('{}, {}, {}, {}\n'.format(self.ml_project,
-                                              str(datetime.now()),
-                                              self._did_pass(),
-                                              "{0:.2f}".format(time.time() - self.start)))
+            f.write(output)
 
     def grade_project(self):
         if self.ml_project:
