@@ -19,12 +19,12 @@ def grade():
     try:
         browser = launch_browser(headless=args.headless)
 
-        headless_grader = Grader(browser, verbose=False)
+        headless_grader = Grader(browser, verbose=False, log=True)
         headless_grader.login()
         headless_grader.refresh_queue()
 
         if headless_grader.get_project():
-            headless_grader.grade_project(log=True)
+            headless_grader.grade_project()
 
         headless_grader.SLEEP(2)
         headless_grader.browser.quit()

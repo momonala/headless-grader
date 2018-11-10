@@ -476,7 +476,7 @@ class Grader:
         self.submit_project()
 
     # ---------------------------- ML -------------------------------------------
-    def grade_ml_section(self, button_X, text_X, save_X, msg, save2_x):
+    def grade_ml_section(self, button_X, text_X, save_X, msg, save2_x, save2_x_2=''):
         try:
             e = self.browser.find_element(By.XPATH, button_X)
             self._scroll_into_view(e)
@@ -489,9 +489,15 @@ class Grader:
             e.click()
         except NoSuchElementException:
             # section has likely already been graded
-            e = self.browser.find_element(By.XPATH, save2_x)
-            self._scroll_into_view(e)
-            e.click()
+            try:
+                e = self.browser.find_element(By.XPATH, save2_x)
+                self._scroll_into_view(e)
+                e.click()
+            # second possible xpath location sometimes needed
+            except NoSuchElementException:
+                e = self.browser.find_element(By.XPATH, save2_x_2)
+                self._scroll_into_view(e)
+                e.click()
 
     def _grade_all_ml_sections(self):
 
@@ -540,7 +546,7 @@ class Grader:
         _save_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
 
-        # save button
+        # message to student
         msg_1 = "Great work making use of the time function here. This is a really useful tool to both manipulate the user experience and to check on the performance of your projects, especially as they scale in size and complexity."
         msg_2 = "Excellent work adding the --dir command line argument! This allows the user to change the working directory as and when required, and doesn't limit them to using just one specified directory."
         msg_3 = "Same goes for the --arch CLI. You've demonstrated good knowledge of this!"
@@ -556,9 +562,15 @@ class Grader:
         msg_13 = "Brilliant - all model outputs score as expected. Well done."
 
         # if the project has already been graded
-        _save2_x1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2_x1_1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save2_x1_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+
+        _save2_x2_1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save2_x2_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+
+        _save2_x3_1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save2_x3_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+
         _save2_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
         _save2_x5 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x6 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
