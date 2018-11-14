@@ -582,9 +582,9 @@ class Grader:
         _save2_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
         _save2_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
 
-        self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, _save2_x1)
-        self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, _save2_x2)
-        self.grade_ml_section(_button_x3, _text_x3, _save_x3, msg_3, _save2_x3)
+        self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, _save2_x1_1, _save2_x1_2)
+        self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, _save2_x2_1, _save2_x2_2)
+        self.grade_ml_section(_button_x3, _text_x3, _save_x3, msg_3, _save2_x3_1, _save2_x3_2)
         self.grade_ml_section(_button_x4, _text_x4, _save_x4, msg_4, _save2_x4)
         self.grade_ml_section(_button_x5, _text_x5, _save_x5, msg_5, _save2_x5)
         self.grade_ml_section(_button_x6, _text_x6, _save_x6, msg_6, _save2_x6)
