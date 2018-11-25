@@ -643,8 +643,8 @@ class Grader:
 
     def _grade_ML(self):
         self._get_preview_tab()
-        # self._grade_all_ml_sections()
-        # self._fill_final_section_ml()
+        self._grade_all_ml_sections()
+        self._fill_final_section_ml()
         self.submit_project()
 
     # -----------------------------------------------------------------------------
