@@ -1,23 +1,23 @@
-from selenium.webdriver import Firefox, FirefoxProfile
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import NoSuchElementException, InvalidSelectorException
-import time
 import os
 import re
-from itertools import permutations
-from datetime import datetime
-from tkinter import Tk
+import time
 from credentials import credentials
+from datetime import datetime
+from itertools import permutations
+from selenium.common.exceptions import NoSuchElementException, InvalidSelectorException
+from selenium.webdriver import Firefox, FirefoxProfile
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+from tkinter import Tk
 
 
 class Grader:
-    def __init__(self, browser, verbose=True, log=True):
+    def __init__(self, web_browser, verbose=True, log=True):
         creds = credentials()
 
-        self.browser = browser
+        self.browser = web_browser
         self.verbose = verbose
         self.log = log
         self.start = time.time()
@@ -25,53 +25,52 @@ class Grader:
 
         # FOR LOGIN ROUTINE
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
-        self.email_XPATH = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[1]/input'
-        self.pass_XPATH = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[2]/input'
+        self.email_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[1]/input'
+        self.pass_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[2]/input'
         self.email = creds['email']
         self.password = creds['password']
-        self.signin_button_XPATH = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/button'
-        self.queue_status_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
-        self.queue_enter_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div/div[2]/button'
-        self.queue_full_XPATH = '/html/body/div[2]/div/div/div/section/div/div/div/div[2]/label'
-        self.queue_now_XPATH = '/html/body/div[2]/div/div/div/section/div/footer/button'
-        self.queue_refresh_button_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[2]/button'
+        self.signin_button_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/button'
+        self.queue_status_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
+        self.queue_enter_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div/div[2]/button'
+        self.queue_full_xpath = '/html/body/div[2]/div/div/div/section/div/div/div/div[2]/label'
+        self.queue_now_xpath = '/html/body/div[2]/div/div/div/section/div/footer/button'
+        self.queue_refresh_button_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[2]/button'
 
         # CHECK IF GRADING ML OR WEB
         self.ml_project = None
 
         # FOR GETTING PENDING PROJECTS FROM THE DASHBOARD
-        self.project_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div/section[1]/div/ul/li/div[4]/a'
-        self.time_XPATH = '/html/body/div[1]/div/div/div[1]/div[2]/div[2]/section[1]/div/ul/li/div[3]/div[2]/p'
+        self.project_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/section[1]/div/ul/li/div[4]/a'
+        self.time_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div[2]/section[1]/div/ul/li/div[3]/div[2]/p'
 
         # FOR SWITCHING TABS INSIDE GRADING
-        self.code_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[3]'
-        self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[4]'
-        # self.review_tab_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[5]/a'
+        self.code_tab_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[3]'
+        self.review_tab_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[4]'
 
         # FOR HTML VALIDATION
-        self.HTML_validation_page = 'https://validator.w3.org/#validate_by_input'
-        self.HTML_input_XPATH = '//*[@id="fragment"]'
-        self.HTML_check_button_XPATH = '/html/body/div[2]/div/fieldset[3]/form/p[2]/a'
-        self.HTML_val_results_XPATH = '//*[@id="results"]'
+        self.html_validation_page = 'https://validator.w3.org/#validate_by_input'
+        self.html_input_xpath = '//*[@id="fragment"]'
+        self.html_check_button_xpath = '/html/body/div[2]/div/fieldset[3]/form/p[2]/a'
+        self.html_val_results_xpath = '//*[@id="results"]'
 
         # FOR SELECTING CODE IN THE EDITOR
         self.code_body_CSS_selector = '.CodeMirror-code > div:nth-child(1)'
 
         # FOR FINAL SUBMISSION
-        self.submit_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/footer/div/div/button'
-        self.confirm_XPATH = '/html/body/div[1]/div/div/div/form/div[2]/div/button'
+        self.submit_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/footer/div/div/button'
+        self.confirm_xpath = '/html/body/div[1]/div/div/div/form/div[2]/div/button'
 
         # FINAL TEXT SECTION
-        self.final_text_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/ng-form/div/div/div[1]/div/div/textarea'
-        self.final_save_button_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/ng-form/div/div/div[2]/div/button[1]'
+        self.final_text_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/ng-form/div/div/div[1]/div/div/textarea'
+        self.final_save_button_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/ng-form/div/div/div[2]/div/button[1]'
 
         # FOR HOLDING RAW CODE AS A LIST
-        self.HTML = None
+        self.html = None
         self.CSS = None
 
         # GRADE BOOLEANS
         self.has_code = False
-        self.HTML_validation = False
+        self.html_validation = False
         self.has_img = False
         self.has_link = False
         self.has_linked_CSS = False
@@ -85,7 +84,8 @@ class Grader:
 
         self.html_val_error_msgs = None
 
-    def SLEEP(self, seconds=4):
+    @staticmethod
+    def sleep(seconds=4):
         # utility function to wait for pages to render
         time.sleep(seconds)
 
@@ -101,22 +101,22 @@ class Grader:
     def login(self):
         # a simple login routine
         self.browser.get(self.start_page)
-        self.browser.find_element(By.XPATH, self.email_XPATH).send_keys(self.email)
-        self.browser.find_element(By.XPATH, self.pass_XPATH).send_keys(self.password)
-        self.browser.find_element(By.XPATH, self.signin_button_XPATH).click()
-        self.SLEEP(6)
+        self.browser.find_element(By.XPATH, self.email_xpath).send_keys(self.email)
+        self.browser.find_element(By.XPATH, self.pass_xpath).send_keys(self.password)
+        self.browser.find_element(By.XPATH, self.signin_button_xpath).click()
+        self.sleep(6)
         print('Login Sucessful!') if self.verbose else 0
 
     def refresh_queue(self):
         # check if we're in queue or not, and enter/refresh accordingly
-        queue_status = self.browser.find_element(By.XPATH, self.queue_status_XPATH).text
+        queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath).text
         if queue_status == 'Queue Off':
-            self.browser.find_element(By.XPATH, self.queue_enter_XPATH).click()
-            self.SLEEP(3)
-            self.browser.find_element(By.XPATH, self.queue_full_XPATH).click()
-            self.browser.find_element(By.XPATH, self.queue_now_XPATH).click()
+            self.browser.find_element(By.XPATH, self.queue_enter_xpath).click()
+            self.sleep(3)
+            self.browser.find_element(By.XPATH, self.queue_full_xpath).click()
+            self.browser.find_element(By.XPATH, self.queue_now_xpath).click()
         else:
-            self.browser.find_element(By.XPATH, self.queue_refresh_button_XPATH).click()
+            self.browser.find_element(By.XPATH, self.queue_refresh_button_xpath).click()
         print('Queue Refresh Sucessful!') if self.verbose else 0
 
     def check_if_ml(self):
@@ -132,31 +132,31 @@ class Grader:
     def get_project(self):
         # Open the new project, wait, then switch control to new tab
         try:
-            time_remaining = self.browser.find_element(By.XPATH, self.time_XPATH)
+            time_remaining = self.browser.find_element(By.XPATH, self.time_xpath)
             time_remaining = int(time_remaining.text.split(' ')[0])
             if time_remaining > 7:
                 # print('Project available but too soon to grade.')
                 return False
 
-            self.browser.find_element(By.XPATH, self.project_XPATH).click()
-            self.SLEEP(4)
+            self.browser.find_element(By.XPATH, self.project_xpath).click()
+            self.sleep(4)
             print('Accessed new project!') if self.verbose else 0
             self.browser.switch_to_window(self.browser.window_handles[1])
-            self.SLEEP(4)
+            self.sleep(4)
             self.check_if_ml()
             return True
 
-        except NoSuchElementException as e:
+        except NoSuchElementException:
             print('No projects to grade') if self.verbose else 0
             return False
 
     def _get_code_tab(self):
         # in project, get the code tab where we can read code
-        self.browser.find_element(By.XPATH, self.code_tab_XPATH).click()
+        self.browser.find_element(By.XPATH, self.code_tab_xpath).click()
 
     def _get_preview_tab(self):
         # in project, get the preview tab where we can grade
-        self.browser.find_element(By.XPATH, self.review_tab_XPATH).click()
+        self.browser.find_element(By.XPATH, self.review_tab_xpath).click()
 
     # ------------------------------- WEB ----------------------------------------------------
     def _check_files(self):
@@ -165,71 +165,71 @@ class Grader:
         self.code_files_tab = 'code-section-item-title'
         self.code_files = self.browser.find_elements(By.CLASS_NAME, self.code_files_tab)
 
-        self.HTML_page = None
+        self.html_page = None
         self.CSS_page = None
-        self.has_HTML = False
+        self.has_html = False
         self.has_CSS = False
         for i, file_ in enumerate(self.code_files):
             if '.html' in file_.get_attribute('innerHTML').lower():
-                self.has_HTML = True
-                self.HTML_page = self.code_files[i]
+                self.has_html = True
+                self.html_page = self.code_files[i]
             if '.css' in file_.get_attribute('innerHTML').lower():
                 self.has_CSS = True
                 self.CSS_page = self.code_files[i]
-        if self.has_CSS is True and self.has_HTML is True:
+        if self.has_CSS is True and self.has_html is True:
             self.has_code = True
         print('Intial File Analysis Complete!') if self.verbose else 0
 
     def _copy_code(self, lang):
         # open the current code tab and copy to the clipboard
         if lang == 'html':
-            page = self.HTML_page
+            page = self.html_page
         elif lang == 'css':
             page = self.CSS_page
         else:
-            print('Error in copying! Wrong file type!') if self.verbose else 0
+            raise ValueError('Error in copying! Wrong file type!')
 
         self._scroll_into_view(page)
         page.click()
-        self.SLEEP(1)
+        self.sleep(1)
         element = self.browser.find_element(By.CSS_SELECTOR, self.code_body_CSS_selector)
         self._scroll_into_view(element)
-        self.SLEEP(2)
-        ActionChains(self.browser) \
-                     .click(element) \
-                     .key_down(Keys.CONTROL) \
-                     .key_down('a') \
-                     .key_up('a') \
-                     .key_down('c') \
-                     .key_up('c') \
-                     .key_up(Keys.CONTROL) \
-                     .perform()
+        self.sleep(2)
+        ActionChains(self.browser)\
+            .click(element) \
+            .key_down(Keys.CONTROL) \
+            .key_down('a') \
+            .key_up('a') \
+            .key_down('c') \
+            .key_up('c') \
+            .key_up(Keys.CONTROL) \
+            .perform()
         print('Copied {}!'.format(lang)) if self.verbose else 0
 
-    def _validate_HTML(self):
+    def _validate_html(self):
         # head over the HTML validator and look for errors
-        self.browser.execute_script("$(window.open('{}'))".format(self.HTML_validation_page))
-        self.SLEEP()
+        self.browser.execute_script("$(window.open('{}'))".format(self.html_validation_page))
+        self.sleep()
         self.browser.switch_to_window(self.browser.window_handles[2])
-        HTML_input = self.browser.find_element(By.XPATH, self.HTML_input_XPATH)
-        ActionChains(self.browser) \
-                     .click(HTML_input) \
-                     .key_down(Keys.CONTROL) \
-                     .key_down('v') \
-                     .key_up(Keys.CONTROL) \
-                     .key_up('v') \
-                     .perform()
+        html_input = self.browser.find_element(By.XPATH, self.html_input_xpath)
+        ActionChains(self.browser)\
+            .click(html_input) \
+            .key_down(Keys.CONTROL) \
+            .key_down('v') \
+            .key_up(Keys.CONTROL) \
+            .key_up('v') \
+            .perform()
 
-        self.browser.find_element(By.XPATH, self.HTML_check_button_XPATH).click()
-        self.SLEEP(3)
+        self.browser.find_element(By.XPATH, self.html_check_button_xpath).click()
+        self.sleep(3)
 
-        results = self.browser.find_element(By.XPATH, self.HTML_val_results_XPATH)
+        results = self.browser.find_element(By.XPATH, self.html_val_results_xpath)
 
         if 'No errors or warnings to show' in results.text:
-            self.HTML_validation = True
+            self.html_validation = True
             print('Student passed HTML!') if self.verbose else 0
         else:
-            self.HTML_validation = False
+            self.html_validation = False
             print('Student failed HTML!') if self.verbose else 0
             self.html_val_error_msgs = []
             for line in results.text.split('\n'):
@@ -242,11 +242,11 @@ class Grader:
         self.browser.switch_to_window(self.browser.window_handles[1])
         print('HTML Validation Complete!') if self.verbose else 0
 
-    def _read_HTML(self):
+    def _read_html(self):
         # read the HTML from the clipboard and analyze
         html_raw = Tk().clipboard_get()
-        HTML = html_raw.split('\n')
-        for line in HTML:
+        html = html_raw.split('\n')
+        for line in html:
             if '<img src= ' and 'alt=' in line:
                 self.has_img = True
             if '<div' in line:
@@ -267,11 +267,11 @@ class Grader:
             print(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
                   f'link: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \nCSS class {self.has_CSS_class}')
 
-    def _read_CSS(self):
+    def _read_css(self):
         # read the CSS from the clipboard and analyze
         css_raw = Tk().clipboard_get()
-        CSS = css_raw.split('\n')
-        for line in CSS:
+        css = css_raw.split('\n')
+        for line in css:
             if "{" in line:
                 self.num_CSS_selectors += 1
         if self.num_CSS_selectors >= 3:
@@ -310,7 +310,7 @@ class Grader:
                 e.send_keys(msg)
                 self.find_by_xpath_click(_save1)
                 return
-            except NoSuchElementException as e:
+            except NoSuchElementException:
                 # second time grading, failed previously
                 e = self.browser.find_element(By.XPATH, _text2)
                 self._scroll_into_view(e)
@@ -318,16 +318,16 @@ class Grader:
                 self.find_by_xpath_click(_save3)
                 return
 
-        except NoSuchElementException as e:
+        except NoSuchElementException:
             # already graded and passed, somtimes finicky about XPATH...
             try:
                 self.find_by_xpath_click(_save1)
                 return
-            except NoSuchElementException as e:
+            except NoSuchElementException:
                 self.find_by_xpath_click(_save2)
                 return
 
-    def _grade_web_section_FIRST9(self):
+    def _grade_web_section_first9(self):
         # Grade the first 9 sections of a web project (10th is different format).
         pass_msg = "Both files were found, great work!"
         fail_msg = "Either CSS or HTML file was missing :("
@@ -343,7 +343,7 @@ class Grader:
                     "there may be validation issues. If left unsolved, your code may eventually fail on different browsers. "
                     "Please ask check out the study groups or discussion forums if you need help solving these errors. "
                     "Good luck!\n{}").format(self.html_val_error_msgs)
-        self._grade_web_section(3, self.HTML_validation, pass_msg, fail_msg)
+        self._grade_web_section(3, self.html_validation, pass_msg, fail_msg)
 
         pass_msg = "Great work with the header tags! You know your stuff :)"
         fail_msg = ("Please make sure you have the corrent number of header tags, "
@@ -373,7 +373,7 @@ class Grader:
 
         print('sections 1-9 graded!') if self.verbose else 0
 
-    def _grade_web_section_LAST(self):
+    def _grade_web_section_last(self):
         # last (section 10) must be different for some reason...
         criteria = True
         pass_msg = 'Great work!'
@@ -410,7 +410,7 @@ class Grader:
     def _fill_final_text_section_web(self):
         # fill out the final section of text (good job message)
         self.all_sections = [self.has_code,
-                             self.HTML_validation,
+                             self.html_validation,
                              self.has_img,
                              self.has_link,
                              self.has_linked_CSS,
@@ -428,23 +428,23 @@ class Grader:
                    'and you demonstrated a clear knowledge of HTML and CSS. '
                    'Onward to  the next project! Additionally, if you have any feedback on how I can improve, '
                    'let me know! Thanks')
-        e = self.browser.find_element(By.XPATH, self.final_text_XPATH)
+        e = self.browser.find_element(By.XPATH, self.final_text_xpath)
         self._scroll_into_view(e)
         e.send_keys(msg)
-        e = self.browser.find_element(By.XPATH, self.final_save_button_XPATH)
+        e = self.browser.find_element(By.XPATH, self.final_save_button_xpath)
         e.click()
 
     def _submit_project(self):
         # submit the graded project!
-        self.browser.find_element(By.XPATH, self.submit_XPATH).click()
-        self.SLEEP(2)
-        self.browser.find_element(By.XPATH, self.confirm_XPATH).click()
+        self.browser.find_element(By.XPATH, self.submit_xpath).click()
+        self.sleep(2)
+        self.browser.find_element(By.XPATH, self.confirm_xpath).click()
         print('Project Submitted!') if self.verbose else 0
 
     def _did_pass(self):
         # set state for passing
         if False in [self.has_code,
-                     self.HTML_validation,
+                     self.html_validation,
                      self.has_img,
                      self.has_link,
                      self.has_linked_CSS,
@@ -461,33 +461,33 @@ class Grader:
         self.start = time.time()
         self._check_files()
         self._copy_code('html')
-        self._validate_HTML()
-        self._read_HTML()
+        self._validate_html()
+        self._read_html()
         self._copy_code('css')
-        self._read_CSS()
+        self._read_css()
 
         self._get_preview_tab()
-        self._grade_web_section_FIRST9()
-        self._grade_web_section_LAST()
+        self._grade_web_section_first9()
+        self._grade_web_section_last()
         self._fill_final_text_section_web()
         self._submit_project()
 
     # ---------------------------- ML -------------------------------------------
-    def grade_ml_section(self, button_X, text_X, save_X, msg, save_X2_li=[], section=None):
+    def grade_ml_section(self, button_x, text_x, save_x, msg, save_x2_li=list(), section=None):
         """ Grade an ML section. If already graded, iterate through a list of high probablity save xpaths.
         If that fails, iterate throuhg every possible permutation, given our knowledge about how the
         paths are formatted (brute force). """
         try:
-            self.find_by_xpath_click(button_X)
-            e = self.browser.find_element(By.XPATH, text_X)
+            self.find_by_xpath_click(button_x)
+            e = self.browser.find_element(By.XPATH, text_x)
             self._scroll_into_view(e)
             e.send_keys(msg)
-            self.find_by_xpath_click(save_X)
+            self.find_by_xpath_click(save_x)
             return
 
         # if we're here, then this section has likely already been graded
         except NoSuchElementException:
-            for x in save_X2_li:
+            for x in save_x2_li:
                 try:
                     self.find_by_xpath_click(x)
                     return
@@ -613,15 +613,15 @@ class Grader:
     def _fill_final_section_ml(self):
         # senf the final message about the whole project to the student.
         msg = "Awesome work on this project! You've demonstrated a solid understanding of using ML classifiers within Python. Onward to the next project!"
-        final_text_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[1]/div/div/textarea'
-        final_save_button_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[2]/div/button[1]'
+        final_text_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[1]/div/div/textarea'
+        final_save_button_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[2]/div/button[1]'
 
-        e = self.browser.find_element(By.XPATH, final_text_XPATH)
+        e = self.browser.find_element(By.XPATH, final_text_xpath)
         self._scroll_into_view(e)
         e.send_keys(msg)
-        e = self.browser.find_element(By.XPATH, final_save_button_XPATH).click()
+        self.browser.find_element(By.XPATH, final_save_button_xpath).click()
 
-    def _grade_ML(self):
+    def _grade_ml(self):
         # grade all ml projects
         self._get_preview_tab()
         self._grade_all_ml_sections()
@@ -641,7 +641,7 @@ class Grader:
     def grade_project(self):
         # determine if ML or web, and grade!
         if self.ml_project:
-            self._grade_ML()
+            self._grade_ml()
         else:
             self._grade_web_project()
         if self.log:
@@ -649,17 +649,17 @@ class Grader:
 
 
 def launch_browser(headless=False, timeout=10):
-    '''Launch a Firefox webdriver with disabled notifications,
+    """Launch a Firefox webdriver with disabled notifications,
         allow page loading, optionally phantom mode
 
     Args:
-        phantom (bool): if True, launch in phantom/headless mode,
+        headless (bool): if True, launch in phantom/headless mode,
                         where you cannot see the browser (default=False)
         timeout (int): time (s) to wait for a response (default=10)
     Returns:
         Webdriver (object): Firefox. With firefox profile settings
                             as explained above.
-    '''
+    """
     # https://stackoverflow.com/questions/32953498/how-can-i-remove-notifications-and-alerts-from-browser-selenium-python-2-7-7
     # https://stackoverflow.com/questions/26566799/how-to-wait-until-the-page-is-loaded-with-selenium-for-python
     # https://stackoverflow.com/questions/5370762/how-to-hide-firefox-window-selenium-webdriver
@@ -677,11 +677,11 @@ def launch_browser(headless=False, timeout=10):
     fp.set_preference("browser.helperApps.neverAsk.saveToDisk",
                       "application/zip")
 
-    browser = Firefox(firefox_profile=fp,
-                      executable_path='geckodriver',
-                      firefox_options=options)
-    browser.implicitly_wait(timeout)
-    return browser
+    web_browser = Firefox(firefox_profile=fp,
+                          executable_path='geckodriver',
+                          firefox_options=options)
+    web_browser.implicitly_wait(timeout)
+    return web_browser
 
 
 if __name__ == '__main__':
@@ -694,5 +694,5 @@ if __name__ == '__main__':
     if headless_grader.get_project():
         headless_grader.grade_project()
 
-    headless_grader.SLEEP(3)
+    headless_grader.sleep(3)
     headless_grader.browser.quit()
