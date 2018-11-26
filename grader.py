@@ -7,6 +7,7 @@ from selenium.common.exceptions import NoSuchElementException, InvalidSelectorEx
 import time
 import os
 import re
+from itertools import permutations
 from datetime import datetime
 from tkinter import Tk
 from credentials import credentials
@@ -20,6 +21,7 @@ class Grader:
         self.verbose = verbose
         self.log = log
         self.start = time.time()
+        self.perms = permutations(range(1, 7), 4)
 
         # FOR LOGIN ROUTINE
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
@@ -91,6 +93,11 @@ class Grader:
         # scroll an element into view
         self.browser.execute_script("return arguments[0].scrollIntoView();", e)
 
+    def find_by_xpath_click(self, xpath):
+        e = self.browser.find_element(By.XPATH, xpath)
+        self._scroll_into_view(e)
+        e.click()
+
     def login(self):
         # a simple login routine
         self.browser.get(self.start_page)
@@ -113,6 +120,7 @@ class Grader:
         print('Queue Refresh Sucessful!') if self.verbose else 0
 
     def check_if_ml(self):
+        # check if its an ML project or not, set state.
         e = self.browser.find_element_by_xpath('/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/h1')
         if e.text == 'Use a Pre-trained Image Classifier to Identify Dog Breeds':
             self.ml_project = True
@@ -121,17 +129,15 @@ class Grader:
             self.ml_project = False
             print('Grading Intro to Web Project') if self.verbose else 0
 
-        return None
-
     def get_project(self):
-        # open the new project, wait, then switch control to new tab
+        # Open the new project, wait, then switch control to new tab
         try:
             time_remaining = self.browser.find_element(By.XPATH, self.time_XPATH)
             time_remaining = int(time_remaining.text.split(' ')[0])
             if time_remaining > 7:
-                print('Project available but too soon to grade.')
+                # print('Project available but too soon to grade.')
                 return False
-            
+
             self.browser.find_element(By.XPATH, self.project_XPATH).click()
             self.SLEEP(4)
             print('Accessed new project!') if self.verbose else 0
@@ -277,13 +283,13 @@ class Grader:
     def _grade_web_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
         #       '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[SEC]/div/div/ng-form/div[PASS-FAIL]/div/label/input'
-        _fail1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[1]/div/label/input'.format(section)
-        _pass1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[2]/div/label/input'.format(section)
-        _text1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'.format(section)
-        _text2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'.format(section)
-        _save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[3]/div[2]/div/button[1]'.format(section)
-        _save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[2]/div[2]/div/button[1]'.format(section)
-        _save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{}]/div/div/ng-form/div[4]/div[2]/div/button[1]'.format(section)
+        _fail1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[1]/div/label/input'
+        _pass1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div/label/input'
+        _text1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text2 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[1]/div/div/textarea'
+        _save1 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        _save2 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        _save3 = f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div[{section}]/div/div/ng-form/div[4]/div[2]/div/button[1]'
 
         if criteria is True:
             _grade = _pass1
@@ -295,43 +301,34 @@ class Grader:
         try:
             # click the pass or fail button for this section
             # grading for the 1st time, or 2nd time and failed before
-            e = self.browser.find_element(By.XPATH, _grade)
-            self._scroll_into_view(e)
-            e.click()
+            self.find_by_xpath_click(_grade)
 
             try:
                 # first time grading
                 e = self.browser.find_element(By.XPATH, _text1)
                 self._scroll_into_view(e)
                 e.send_keys(msg)
-                e = self.browser.find_element(By.XPATH, _save1)
-                self._scroll_into_view(e)
-                e.click()
+                self.find_by_xpath_click(_save1)
                 return
             except NoSuchElementException as e:
                 # second time grading, failed previously
                 e = self.browser.find_element(By.XPATH, _text2)
                 self._scroll_into_view(e)
                 e.send_keys(msg)
-                e = self.browser.find_element(By.XPATH, _save3)
-                self._scroll_into_view(e)
-                e.click()
+                self.find_by_xpath_click(_save3)
                 return
 
         except NoSuchElementException as e:
             # already graded and passed, somtimes finicky about XPATH...
             try:
-                e = self.browser.find_element(By.XPATH, _save1)
-                self._scroll_into_view(e)
-                e.click()
+                self.find_by_xpath_click(_save1)
                 return
             except NoSuchElementException as e:
-                e = self.browser.find_element(By.XPATH, _save2)
-                self._scroll_into_view(e)
-                e.click()
+                self.find_by_xpath_click(_save2)
                 return
 
     def _grade_web_section_FIRST9(self):
+        # Grade the first 9 sections of a web project (10th is different format).
         pass_msg = "Both files were found, great work!"
         fail_msg = "Either CSS or HTML file was missing :("
         self._grade_web_section(1, self.has_code, pass_msg, fail_msg)
@@ -398,25 +395,17 @@ class Grader:
 
         try:
             # if not graded before
-            e = self.browser.find_element(By.XPATH, _grade)
-            self._scroll_into_view(e)
-            e.click()
+            self.find_by_xpath_click(_grade)
             e = self.browser.find_element(By.XPATH, _text1)
             self._scroll_into_view(e)
             e.send_keys(msg)
-            e = self.browser.find_element(By.XPATH, _save1)
-            self._scroll_into_view(e)
-            e.click()
+            self.find_by_xpath_click(_save1)
         except NoSuchElementException:
             # if already graded - two options...
             try:
-                e = self.browser.find_element(By.XPATH, _save3)
-                self._scroll_into_view(e)
-                e.click()
+                self.find_by_xpath_click(_save3)
             except NoSuchElementException:
-                e = self.browser.find_element(By.XPATH, _save2)
-                self._scroll_into_view(e)
-                e.click()
+                self.find_by_xpath_click(_save2)
 
     def _fill_final_text_section_web(self):
         # fill out the final section of text (good job message)
@@ -445,7 +434,7 @@ class Grader:
         e = self.browser.find_element(By.XPATH, self.final_save_button_XPATH)
         e.click()
 
-    def submit_project(self):
+    def _submit_project(self):
         # submit the graded project!
         self.browser.find_element(By.XPATH, self.submit_XPATH).click()
         self.SLEEP(2)
@@ -453,6 +442,7 @@ class Grader:
         print('Project Submitted!') if self.verbose else 0
 
     def _did_pass(self):
+        # set state for passing
         if False in [self.has_code,
                      self.HTML_validation,
                      self.has_img,
@@ -480,40 +470,48 @@ class Grader:
         self._grade_web_section_FIRST9()
         self._grade_web_section_LAST()
         self._fill_final_text_section_web()
-        self.submit_project()
+        self._submit_project()
 
     # ---------------------------- ML -------------------------------------------
-    def grade_ml_section(self, button_X, text_X, save_X, msg, save2_x, save2_x_2=None, save2_x_3=None):
+    def grade_ml_section(self, button_X, text_X, save_X, msg, save_X2_li=[], section=None):
+        """ Grade an ML section. If already graded, iterate through a list of high probablity save xpaths.
+        If that fails, iterate throuhg every possible permutation, given our knowledge about how the
+        paths are formatted (brute force). """
         try:
-            e = self.browser.find_element(By.XPATH, button_X)
-            self._scroll_into_view(e)
-            e.click()
+            self.find_by_xpath_click(button_X)
             e = self.browser.find_element(By.XPATH, text_X)
             self._scroll_into_view(e)
             e.send_keys(msg)
-            e = self.browser.find_element(By.XPATH, save_X)
-            self._scroll_into_view(e)
-            e.click()
+            self.find_by_xpath_click(save_X)
+            return
+
+        # if we're here, then this section has likely already been graded
         except NoSuchElementException:
-            # section has likely already been graded
-            try:
-                e = self.browser.find_element(By.XPATH, save2_x)
-                self._scroll_into_view(e)
-                e.click()
-            # second possible xpath location sometimes needed
-            except NoSuchElementException:
-                if not save2_x_2:
-                    raise InvalidSelectorException('New or unknown xPath for already graded section!')
+            for x in save_X2_li:
                 try:
-                    e = self.browser.find_element(By.XPATH, save2_x_2)
-                    self._scroll_into_view(e)
-                    e.click()
+                    self.find_by_xpath_click(x)
+                    return
                 except NoSuchElementException:
-                    if not save2_x_3:
-                        raise InvalidSelectorException('New or unknown xPath for already graded section!')
-                    e = self.browser.find_element(By.XPATH, save2_x_3)
-                    self._scroll_into_view(e)
-                    e.click()
+                    pass
+            if section not in [1, 13]:
+                p = self._grade_arbitrary_ml_section()
+                print(f'section:{section} - {p} worked!')
+
+    @staticmethod
+    def _get_arbitrary_xpath(w, x, y, z):
+        # Generate an xpath for an arbitrary section save.
+        return f'/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[{w}]/div/div/div[{x}]/div[{y}]/div/div/ng-form/div[{z}]/div[2]/div/button[1]'
+
+    def _grade_arbitrary_ml_section(self):
+        # Grade an arbitrary section or throw an error if failure.
+        for p in self.perms:
+            xpath = self._get_arbitrary_xpath(*p)
+            try:
+                self.find_by_xpath_click(xpath)
+                return p
+            except NoSuchElementException:
+                pass
+        raise InvalidSelectorException('New or unknown xpath for this section!')
 
     def _grade_all_ml_sections(self):
 
@@ -578,59 +576,42 @@ class Grader:
         msg_13 = "Brilliant - all model outputs score as expected. Well done."
 
         # if the project has already been graded
-        _save2_x1_1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x1_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        x1_save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
+        x1_save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
 
-        _save2_x2_1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x2_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        x13_save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        x13_save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
 
-        _save2_x3_1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x3_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        x1 = [x1_save1, x1_save2]
+        x2 = [self._get_arbitrary_xpath(2, 2, 1, 2), self._get_arbitrary_xpath(2, 2, 1, 3)]
+        x3 = [self._get_arbitrary_xpath(2, 2, 2, 2), self._get_arbitrary_xpath(2, 2, 2, 3)]
+        x4 = [self._get_arbitrary_xpath(2, 2, 3, 3), self._get_arbitrary_xpath(2, 2, 3, 2)]
+        x5 = [self._get_arbitrary_xpath(3, 2, 1, 2), self._get_arbitrary_xpath(3, 2, 1, 4)]
+        x6 = [self._get_arbitrary_xpath(3, 2, 2, 3), self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(3, 2, 2, 2)]
+        x7 = [self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 1, 3)]
+        x8 = [self._get_arbitrary_xpath(4, 2, 1, 3), self._get_arbitrary_xpath(4, 2, 2, 2), self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 2, 3)]
+        x9 = [self._get_arbitrary_xpath(4, 2, 2, 2), self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 3, 3)]
+        x10 = [self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 3, 3), self._get_arbitrary_xpath(5, 2, 2, 2)]
+        x11 = [self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(5, 2, 1, 3)]
+        x12 = [self._get_arbitrary_xpath(5, 2, 2, 2)]
+        x13 = [x13_save1, x13_save2]
 
-        _save2_x4 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2_x4_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[2]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        
-        _save2_x5 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x5_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[1]/div/div/ng-form/div[4]/div[2]/div/button[1]'
-
-        _save2_x6 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2_x6_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x6_3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-
-        _save2_x7 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x7_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-
-        _save2_x8 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2_x8_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x8_3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-
-        _save2_x9 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x9_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-
-        _save2_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2_x10_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-
-        _save2_x11 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[1]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        _save2_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
-        
-        _save2_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
-        _save2_x13_2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
-
-        self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, _save2_x1_1, _save2_x1_2)
-        self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, _save2_x2_1, _save2_x2_2)
-        self.grade_ml_section(_button_x3, _text_x3, _save_x3, msg_3, _save2_x3_1, _save2_x3_2)
-        self.grade_ml_section(_button_x4, _text_x4, _save_x4, msg_4, _save2_x4, _save2_x4_2)
-        self.grade_ml_section(_button_x5, _text_x5, _save_x5, msg_5, _save2_x5, _save2_x5_2)
-        self.grade_ml_section(_button_x6, _text_x6, _save_x6, msg_6, _save2_x6, _save2_x6_2, _save2_x6_3)
-        self.grade_ml_section(_button_x7, _text_x7, _save_x7, msg_7, _save2_x7, _save2_x7_2)
-        self.grade_ml_section(_button_x8, _text_x8, _save_x8, msg_8, _save2_x8, _save2_x8_2, _save2_x8_3)
-        self.grade_ml_section(_button_x9, _text_x9, _save_x9, msg_9, _save2_x9, _save2_x9_2)
-        self.grade_ml_section(_button_x10, _text_x10, _save_x10, msg_10, _save2_x10, _save2_x10_2)
-        self.grade_ml_section(_button_x11, _text_x11, _save_x11, msg_11, _save2_x11)
-        self.grade_ml_section(_button_x12, _text_x12, _save_x12, msg_12, _save2_x12)
-        self.grade_ml_section(_button_x13, _text_x13, _save_x13, msg_13, _save2_x13, _save2_x13_2)
+        self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, x1, 1)
+        self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, x2, 2)
+        self.grade_ml_section(_button_x3, _text_x3, _save_x3, msg_3, x3, 3)
+        self.grade_ml_section(_button_x4, _text_x4, _save_x4, msg_4, x4, 4)
+        self.grade_ml_section(_button_x5, _text_x5, _save_x5, msg_5, x5, 5)
+        self.grade_ml_section(_button_x6, _text_x6, _save_x6, msg_6, x6, 6)
+        self.grade_ml_section(_button_x7, _text_x7, _save_x7, msg_7, x7, 7)
+        self.grade_ml_section(_button_x8, _text_x8, _save_x8, msg_8, x8, 8)
+        self.grade_ml_section(_button_x9, _text_x9, _save_x9, msg_9, x9, 9)
+        self.grade_ml_section(_button_x10, _text_x10, _save_x10, msg_10, x10, 10)
+        self.grade_ml_section(_button_x11, _text_x11, _save_x11, msg_11, x11, 11)
+        self.grade_ml_section(_button_x12, _text_x12, _save_x12, msg_12, x12, 12)
+        self.grade_ml_section(_button_x13, _text_x13, _save_x13, msg_13, x13, 13)
 
     def _fill_final_section_ml(self):
+        # senf the final message about the whole project to the student.
         msg = "Awesome work on this project! You've demonstrated a solid understanding of using ML classifiers within Python. Onward to the next project!"
         final_text_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[1]/div/div/textarea'
         final_save_button_XPATH = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[8]/ng-form/div/div/div[2]/div/button[1]'
@@ -638,18 +619,19 @@ class Grader:
         e = self.browser.find_element(By.XPATH, final_text_XPATH)
         self._scroll_into_view(e)
         e.send_keys(msg)
-        e = self.browser.find_element(By.XPATH, final_save_button_XPATH)
-        e.click()
+        e = self.browser.find_element(By.XPATH, final_save_button_XPATH).click()
 
     def _grade_ML(self):
+        # grade all ml projects
         self._get_preview_tab()
         self._grade_all_ml_sections()
         self._fill_final_section_ml()
-        self.submit_project()
+        self._submit_project()
 
     # -----------------------------------------------------------------------------
 
     def _write_logs(self):
+        # send logs to file
         proj_type = 'ML' if self.ml_project else 'web'
         output = f'{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
         print(output)
@@ -657,6 +639,7 @@ class Grader:
             f.write(output)
 
     def grade_project(self):
+        # determine if ML or web, and grade!
         if self.ml_project:
             self._grade_ML()
         else:
@@ -709,8 +692,7 @@ if __name__ == '__main__':
     headless_grader.refresh_queue()
 
     if headless_grader.get_project():
-        if headless_grader.ml_project:
-            headless_grader.grade_project()
+        headless_grader.grade_project()
 
     headless_grader.SLEEP(3)
     headless_grader.browser.quit()
