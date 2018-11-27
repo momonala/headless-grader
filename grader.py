@@ -132,11 +132,12 @@ class Grader:
     def get_project(self):
         # Open the new project, wait, then switch control to new tab
         try:
-            time_remaining = self.browser.find_element(By.XPATH, self.time_xpath)
-            time_remaining = int(time_remaining.text.split(' ')[0])
-            if time_remaining > 7:
-                # print('Project available but too soon to grade.')
-                return False
+            time_remaining = self.browser.find_element(By.XPATH, self.time_xpath).text
+            if 'minutes' not in time_remaining:
+                time_remaining = int(time_remaining.split(' ')[0])
+                if time_remaining > 7:
+                    # print('Project available but too soon to grade.')
+                    return False
 
             self.browser.find_element(By.XPATH, self.project_xpath).click()
             self.sleep(4)
