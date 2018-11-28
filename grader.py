@@ -579,22 +579,23 @@ class Grader:
         # if the project has already been graded
         x1_save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
         x1_save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
+        x1_save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[4]/div[2]/div/button[1]'
 
         x13_save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
         x13_save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
 
-        x1 = [x1_save1, x1_save2]
+        x1 = [x1_save1, x1_save2, x1_save3]
         x2 = [self._get_arbitrary_xpath(2, 2, 1, 2), self._get_arbitrary_xpath(2, 2, 1, 3)]
         x3 = [self._get_arbitrary_xpath(2, 2, 2, 2), self._get_arbitrary_xpath(2, 2, 2, 3)]
-        x4 = [self._get_arbitrary_xpath(2, 2, 3, 3), self._get_arbitrary_xpath(2, 2, 3, 2)]
+        x4 = [self._get_arbitrary_xpath(2, 2, 3, 2), self._get_arbitrary_xpath(2, 2, 3, 3)]
         x5 = [self._get_arbitrary_xpath(3, 2, 1, 2), self._get_arbitrary_xpath(3, 2, 1, 4)]
         x6 = [self._get_arbitrary_xpath(3, 2, 2, 3), self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(3, 2, 2, 2)]
         x7 = [self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 1, 3)]
         x8 = [self._get_arbitrary_xpath(4, 2, 1, 3), self._get_arbitrary_xpath(4, 2, 2, 2), self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 2, 3)]
         x9 = [self._get_arbitrary_xpath(4, 2, 2, 2), self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 3, 3)]
         x10 = [self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 3, 3), self._get_arbitrary_xpath(5, 2, 2, 2)]
-        x11 = [self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(5, 2, 1, 3)]
-        x12 = [self._get_arbitrary_xpath(5, 2, 2, 2)]
+        x11 = [self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(5, 2, 1, 3), self._get_arbitrary_xpath(5, 2, 1, 4)]
+        x12 = [self._get_arbitrary_xpath(5, 2, 2, 2), self._get_arbitrary_xpath(6, 2, 1, 3)]
         x13 = [x13_save1, x13_save2]
 
         self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, x1, 1)
@@ -634,7 +635,7 @@ class Grader:
     def _write_logs(self):
         # send logs to file
         proj_type = 'ML' if self.ml_project else 'web'
-        output = f'{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
+        output = f'\n{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
         print(output)
         with open('grades.txt', 'a') as f:
             f.write(output)
@@ -649,7 +650,7 @@ class Grader:
             self._write_logs()
 
 
-def launch_browser(headless=False, timeout=10):
+def launch_browser(headless=False, timeout=4):
     """Launch a Firefox webdriver with disabled notifications,
         allow page loading, optionally phantom mode
 
