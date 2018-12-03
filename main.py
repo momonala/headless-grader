@@ -1,9 +1,13 @@
-from grader import launch_browser, Grader
-import schedule
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import argparse
 import time
 import traceback
 from datetime import datetime
+
+import schedule
+
+from grader import launch_browser, Grader
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--headless', default=False)

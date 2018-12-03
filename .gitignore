@@ -1,7 +1,9 @@
 .ipynb_checkpoints/
-Test Selenium.ipynb
 __pycache__/
 .vscode/
+.idea/
+venv/
+Test Selenium.ipynb
 credentials.py
 geckodriver.log
 logs.txt
