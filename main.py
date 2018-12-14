@@ -15,7 +15,7 @@ if args.headless:
 
 def grade():
     # start a session to grade a project!
-    browser = launch_browser(headless=args.headless, timeout=4)
+    browser = launch_browser(headless=args.headless, timeout=8)
     headless_grader = Grader(browser, verbose=False, log=True)
     try:
 

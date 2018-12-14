@@ -46,6 +46,7 @@ class Grader:
         # FOR SWITCHING TABS INSIDE GRADING
         self.code_tab_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[3]'
         self.review_tab_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[4]'
+        # '/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/ul/li[3]/a'
 
         # FOR HTML VALIDATION
         self.html_validation_page = 'https://validator.w3.org/#validate_by_input'
@@ -437,9 +438,9 @@ class Grader:
 
     def _submit_project(self):
         # submit the graded project!
-        self.browser.find_element(By.XPATH, self.submit_xpath).click()
+        self.find_by_xpath_click(self.submit_xpath)
         self.sleep(2)
-        self.browser.find_element(By.XPATH, self.confirm_xpath).click()
+        self.find_by_xpath_click(self.confirm_xpath)
         print('Project Submitted!') if self.verbose else 0
 
     def _did_pass(self):
@@ -495,8 +496,11 @@ class Grader:
                 except NoSuchElementException:
                     pass
             if section not in [1, 13]:
+                print(f'Predefined XPATHS failed for section {section}. Attemping loop.')
                 p = self._grade_arbitrary_ml_section()
                 print(f'section:{section} - {p} worked!')
+            else:
+                print(f'Predefined XPATHS for section {section} failed.')
 
     @staticmethod
     def _get_arbitrary_xpath(w, x, y, z):
@@ -507,11 +511,12 @@ class Grader:
         # Grade an arbitrary section or throw an error if failure.
         for p in self.perms:
             xpath = self._get_arbitrary_xpath(*p)
-            try:
-                self.find_by_xpath_click(xpath)
-                return p
-            except NoSuchElementException:
-                pass
+            if xpath not in self.known_xpaths:
+                try:
+                    self.find_by_xpath_click(xpath)
+                    return p
+                except NoSuchElementException:
+                    pass
         raise InvalidSelectorException('New or unknown xpath for this section!')
 
     def _grade_all_ml_sections(self):
@@ -541,7 +546,7 @@ class Grader:
         _text_x7 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
         _text_x8 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
         _text_x9 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
-        _text_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
+        _text_x10 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/div/div/div[2]/div[3]/div/div/ng-form/div[4]/div[1]/div/div/textarea'
         _text_x11 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[1]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
         _text_x12 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[5]/div/div/div[2]/div[2]/div/div/ng-form/div[3]/div[1]/div/div/textarea'
         _text_x13 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[1]/div/div/textarea'
@@ -581,6 +586,8 @@ class Grader:
         x1_save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
         x1_save3 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[1]/div/div/div[2]/div/div/div/ng-form/div[4]/div[2]/div/button[1]'
 
+        x6_save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[3]/div/div/div[2]/div[2]/div/div/ng-form/div[2]/div[2]/div/button[1]'
+
         x13_save1 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[3]/div[2]/div/button[1]'
         x13_save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
 
@@ -589,14 +596,15 @@ class Grader:
         x3 = [self._get_arbitrary_xpath(2, 2, 2, 2), self._get_arbitrary_xpath(2, 2, 2, 3)]
         x4 = [self._get_arbitrary_xpath(2, 2, 3, 2), self._get_arbitrary_xpath(2, 2, 3, 3)]
         x5 = [self._get_arbitrary_xpath(3, 2, 1, 2), self._get_arbitrary_xpath(3, 2, 1, 4)]
-        x6 = [self._get_arbitrary_xpath(3, 2, 2, 3), self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(3, 2, 2, 2)]
-        x7 = [self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 1, 3)]
+        x6 = [self._get_arbitrary_xpath(3, 2, 2, 3), self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(3, 2, 2, 2), x6_save1]
+        x7 = [self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(3, 2, 3, 3), self._get_arbitrary_xpath(4, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 1, 3)]
         x8 = [self._get_arbitrary_xpath(4, 2, 1, 3), self._get_arbitrary_xpath(4, 2, 2, 2), self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 2, 3)]
         x9 = [self._get_arbitrary_xpath(4, 2, 2, 2), self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 3, 3)]
-        x10 = [self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 3, 3), self._get_arbitrary_xpath(5, 2, 2, 2)]
-        x11 = [self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(5, 2, 1, 3), self._get_arbitrary_xpath(5, 2, 1, 4)]
-        x12 = [self._get_arbitrary_xpath(5, 2, 2, 2), self._get_arbitrary_xpath(6, 2, 1, 3)]
+        x10 = [self._get_arbitrary_xpath(4, 2, 3, 4), self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 3, 3), self._get_arbitrary_xpath(5, 2, 2, 2)]
+        x11 = [self._get_arbitrary_xpath(5, 2, 1, 2), self._get_arbitrary_xpath(5, 2, 1, 3), self._get_arbitrary_xpath(5, 2, 1, 4), self._get_arbitrary_xpath(4, 2, 2, 3)]
+        x12 = [self._get_arbitrary_xpath(5, 2, 2, 4), self._get_arbitrary_xpath(5, 2, 2, 2), self._get_arbitrary_xpath(5, 2, 2, 3), self._get_arbitrary_xpath(6, 2, 1, 3)]
         x13 = [x13_save1, x13_save2]
+        self.known_xpaths = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x12]
 
         self.grade_ml_section(_button_x1, _text_x1, _save_x1, msg_1, x1, 1)
         self.grade_ml_section(_button_x2, _text_x2, _save_x2, msg_2, x2, 2)
