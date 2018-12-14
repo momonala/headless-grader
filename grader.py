@@ -1,16 +1,20 @@
+# !/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import os
 import re
 import time
-from credentials import credentials
 from datetime import datetime
 from itertools import permutations
+from tkinter import Tk
+
 from selenium.common.exceptions import NoSuchElementException, InvalidSelectorException
 from selenium.webdriver import Firefox, FirefoxProfile
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
-from tkinter import Tk
+
+from credentials import credentials
 
 
 class Grader:
