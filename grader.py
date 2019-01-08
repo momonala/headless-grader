@@ -29,11 +29,11 @@ class Grader:
 
         # FOR LOGIN ROUTINE
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
-        self.email_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[1]/input'
-        self.pass_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/div/div[2]/input'
+        self.email_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[2]/div[3]/div/form/div/div[1]/input'
+        self.pass_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[2]/div[3]/div/form/div/div[2]/input'
         self.email = creds['email']
         self.password = creds['password']
-        self.signin_button_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div/div[1]/div/form/button'
+        self.signin_button_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[2]/div[3]/div/form/button'
         self.queue_status_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
         self.queue_enter_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div/div[2]/button'
         self.queue_full_xpath = '/html/body/div[2]/div/div/div/section/div/div/div/div[2]/label'
