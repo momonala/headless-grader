@@ -596,10 +596,10 @@ class Grader:
         x13_save2 = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[6]/div/div/div[2]/div/div/div/ng-form/div[2]/div[2]/div/button[1]'
 
         x1 = [x1_save1, x1_save2, x1_save3]
-        x2 = [self._get_arbitrary_xpath(2, 2, 1, 2), self._get_arbitrary_xpath(2, 2, 1, 3)]
+        x2 = [self._get_arbitrary_xpath(2, 2, 1, 2), self._get_arbitrary_xpath(2, 2, 1, 3), self._get_arbitrary_xpath(2, 2, 1, 4)]
         x3 = [self._get_arbitrary_xpath(2, 2, 2, 2), self._get_arbitrary_xpath(2, 2, 2, 3)]
         x4 = [self._get_arbitrary_xpath(2, 2, 3, 2), self._get_arbitrary_xpath(2, 2, 3, 3)]
-        x5 = [self._get_arbitrary_xpath(3, 2, 1, 2), self._get_arbitrary_xpath(3, 2, 1, 4)]
+        x5 = [self._get_arbitrary_xpath(3, 2, 1, 2), self._get_arbitrary_xpath(3, 2, 1, 3), self._get_arbitrary_xpath(3, 2, 1, 4)]
         x6 = [self._get_arbitrary_xpath(3, 2, 2, 3), self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(3, 2, 2, 2), x6_save1]
         x7 = [self._get_arbitrary_xpath(3, 2, 3, 2), self._get_arbitrary_xpath(3, 2, 3, 3), self._get_arbitrary_xpath(4, 2, 1, 2), self._get_arbitrary_xpath(4, 2, 1, 3)]
         x8 = [self._get_arbitrary_xpath(4, 2, 1, 3), self._get_arbitrary_xpath(4, 2, 2, 2), self._get_arbitrary_xpath(4, 2, 3, 2), self._get_arbitrary_xpath(4, 2, 2, 3)]
