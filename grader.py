@@ -34,7 +34,8 @@ class Grader:
         self.email = creds['email']
         self.password = creds['password']
         self.signin_button_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[2]/div[3]/div/form/button'
-        self.queue_status_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
+        self.queue_status_xpath1 = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
+        self.queue_status_xpath2 = '/html/body/div[1]/div/div/div[1]/div[2]/div[2]/header/div/div[2]/div/div/div[1]/div[1]/h3'
         self.queue_enter_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div/div[2]/button'
         self.queue_full_xpath = '/html/body/div[2]/div/div/div/section/div/div/div/div[2]/label'
         self.queue_now_xpath = '/html/body/div[2]/div/div/div/section/div/footer/button'
@@ -114,7 +115,10 @@ class Grader:
 
     def refresh_queue(self):
         # check if we're in queue or not, and enter/refresh accordingly
-        queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath).text
+        try:
+            queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath1).text
+        except NoSuchElementException:
+            queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath2).text
         if queue_status == 'Queue Off':
             self.browser.find_element(By.XPATH, self.queue_enter_xpath).click()
             self.sleep(3)
@@ -141,7 +145,7 @@ class Grader:
             if 'minutes' not in time_remaining:
                 time_remaining = int(time_remaining.split(' ')[0])
                 if time_remaining > 7:
-                    # print('Project available but too soon to grade.')
+                    print('Project available but too soon to grade.')
                     return False
 
             self.browser.find_element(By.XPATH, self.project_xpath).click()
