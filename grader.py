@@ -1,5 +1,6 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import logging
 import os
 import re
 import time
@@ -16,6 +17,8 @@ from selenium.webdriver.firefox.options import Options
 
 from credentials import credentials
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Grader:
     def __init__(self, web_browser, verbose=True, log=True):
@@ -111,7 +114,7 @@ class Grader:
         self.browser.find_element(By.XPATH, self.pass_xpath).send_keys(self.password)
         self.browser.find_element(By.XPATH, self.signin_button_xpath).click()
         self.sleep(6)
-        print('Login Sucessful!') if self.verbose else 0
+        logger.info('Login Sucessful!') if self.verbose else 0
 
     def refresh_queue(self):
         # check if we're in queue or not, and enter/refresh accordingly
@@ -126,17 +129,17 @@ class Grader:
             self.browser.find_element(By.XPATH, self.queue_now_xpath).click()
         else:
             self.browser.find_element(By.XPATH, self.queue_refresh_button_xpath).click()
-        print('Queue Refresh Sucessful!') if self.verbose else 0
+        logger.info('Queue Refresh Sucessful!') if self.verbose else 0
 
     def check_if_ml(self):
         # check if its an ML project or not, set state.
         e = self.browser.find_element_by_xpath('/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/h1')
         if e.text == 'Use a Pre-trained Image Classifier to Identify Dog Breeds':
             self.ml_project = True
-            print('Grading ML Project') if self.verbose else 0
+            logger.info('Grading ML Project') if self.verbose else 0
         else:
             self.ml_project = False
-            print('Grading Intro to Web Project') if self.verbose else 0
+            logger.info('Grading Intro to Web Project') if self.verbose else 0
 
     def get_project(self):
         # Open the new project, wait, then switch control to new tab
@@ -145,19 +148,19 @@ class Grader:
             if 'minutes' not in time_remaining:
                 time_remaining = int(time_remaining.split(' ')[0])
                 if time_remaining > 7:
-                    print('Project available but too soon to grade.')
+                    logger.warn('Project available but too soon to grade.') if self.verbose else 0
                     return False
 
             self.browser.find_element(By.XPATH, self.project_xpath).click()
             self.sleep(4)
-            print('Accessed new project!') if self.verbose else 0
+            logger.info('Accessed new project!') if self.verbose else 0
             self.browser.switch_to_window(self.browser.window_handles[1])
             self.sleep(4)
             self.check_if_ml()
             return True
 
         except NoSuchElementException:
-            print('No projects to grade') if self.verbose else 0
+            logger.info('No projects to grade') if self.verbose else 0
             return False
 
     def _get_code_tab(self):
@@ -188,7 +191,7 @@ class Grader:
                 self.CSS_page = self.code_files[i]
         if self.has_CSS is True and self.has_html is True:
             self.has_code = True
-        print('Intial File Analysis Complete!') if self.verbose else 0
+        logger.info('Intial File Analysis Complete!') if self.verbose else 0
 
     def _copy_code(self, lang):
         # open the current code tab and copy to the clipboard
@@ -214,7 +217,7 @@ class Grader:
             .key_up('c') \
             .key_up(Keys.CONTROL) \
             .perform()
-        print('Copied {}!'.format(lang)) if self.verbose else 0
+        logger.info('Copied {}!'.format(lang)) if self.verbose else 0
 
     def _validate_html(self):
         # head over the HTML validator and look for errors
@@ -237,10 +240,10 @@ class Grader:
 
         if 'No errors or warnings to show' in results.text:
             self.html_validation = True
-            print('Student passed HTML!') if self.verbose else 0
+            logger.info('Student passed HTML!') if self.verbose else 0
         else:
             self.html_validation = False
-            print('Student failed HTML!') if self.verbose else 0
+            logger.info('Student failed HTML!') if self.verbose else 0
             self.html_val_error_msgs = []
             for line in results.text.split('\n'):
                 line = line.split('.')
@@ -250,7 +253,7 @@ class Grader:
 
         self.browser.close()
         self.browser.switch_to_window(self.browser.window_handles[1])
-        print('HTML Validation Complete!') if self.verbose else 0
+        logger.info('HTML Validation Complete!') if self.verbose else 0
 
     def _read_html(self):
         # read the HTML from the clipboard and analyze
@@ -274,8 +277,8 @@ class Grader:
         if self.h >= 3:
             self.has_headers = True
         if self.verbose:
-            print(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
-                  f'link: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \nCSS class {self.has_CSS_class}')
+            logger.info(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
+                        f'link: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \nCSS class {self.has_CSS_class}')
 
     def _read_css(self):
         # read the CSS from the clipboard and analyze
