@@ -1,0 +1,28 @@
+Great work making use of the time function here. This is a really useful tool to both manipulate the user experience and to check on the performance of your projects, especially as they scale in size and complexity.
+
+Excellent work adding the --dir command line argument! This allows the user to change the working directory as and when required, and doesn't limit them to using just one specified directory.
+
+
+Same goes for the --arch CLI. You've demonstrated good knowledge of this!
+
+Nice job with the --dogfile CLI
+
+Great work ignoring certain file types!
+
+Brilliant job building the dog label dictionary! This was a tricky part of the project, and proves you have the skills to manipulate data (filenames) to produce a given format, no matter how much the filenames themselves differ. Well done!
+
+Nice - you've passed in the arguments retrieved from the user (via arg parsing, the defaults are used if the user doesn't specify anything) and passed them correctly to the get_pet_labels function.
+
+Great work here in passing the image directory (the argument obtained using the arg_parser as specified by the user, of by the default argument), the key (filename) and the model architecture to the classifier function. Just to recap this bit - this function then makes calls to the pre-trained image classifier neural network which has been trained on millions of images to learn how to predict what the images you pass to it are.
+
+Formatting looks good!
+
+Good job here too - We're now directly comparing what the AI model thinks the image is of to what the truth is (in this project, remember we've said that the true values are the manipulated file names). Well done!
+
+Good stuff - all matches between the true labels (i.e. adjusted filenames) and the AI classifier labels are correctly categorised.
+
+All the displayed outputs match up and are appropriately displayed, good job. 
+
+Brilliant - all model outputs score as expected. Well done.
+
+Awesome work on this project! You've demonstrated a solid understanding of using ML classifiers within Python. Onward to the next project!

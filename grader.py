@@ -17,7 +17,7 @@ from selenium.webdriver.firefox.options import Options
 
 from credentials import credentials
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
 
 class Grader:
@@ -291,7 +291,7 @@ class Grader:
             self.has_CSS_selectors = True
 
         if self.verbose:
-            print('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
+            logger.info('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
 
     def _grade_web_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
@@ -384,7 +384,7 @@ class Grader:
         fail_msg = "Please see https://www.w3schools.com/html/html_links.asp if you are having difficulty with images"
         self._grade_web_section(9, self.has_link, pass_msg, fail_msg)
 
-        print('sections 1-9 graded!') if self.verbose else 0
+        logger.info('sections 1-9 graded!') if self.verbose else 0
 
     def _grade_web_section_last(self):
         # last (section 10) must be different for some reason...
@@ -452,7 +452,7 @@ class Grader:
         self.find_by_xpath_click(self.submit_xpath)
         self.sleep(2)
         self.find_by_xpath_click(self.confirm_xpath)
-        print('Project Submitted!') if self.verbose else 0
+        logger.info('Project Submitted!') if self.verbose else 0
 
     def _did_pass(self):
         # set state for passing
@@ -507,11 +507,11 @@ class Grader:
                 except NoSuchElementException:
                     pass
             if section not in [1, 13]:
-                print(f'Predefined XPATHS failed for section {section}. Attemping loop.')
+                logger.info(f'Predefined XPATHS failed for section {section}. Attemping loop.')
                 p = self._grade_arbitrary_ml_section()
-                print(f'section:{section} - {p} worked!')
+                logger.info(f'section:{section} - {p} worked!')
             else:
-                print(f'Predefined XPATHS for section {section} failed.')
+                logger.info(f'Predefined XPATHS for section {section} failed.')
 
     @staticmethod
     def _get_arbitrary_xpath(w, x, y, z):
@@ -655,7 +655,7 @@ class Grader:
         # send logs to file
         proj_type = 'ML' if self.ml_project else 'web'
         output = f'\n{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
-        print(output)
+        logger.info(output)
         with open('grades.txt', 'a') as f:
             f.write(output)
 
