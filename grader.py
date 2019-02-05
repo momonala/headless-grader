@@ -20,6 +20,7 @@ from credentials import credentials
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
 
+
 class Grader:
     def __init__(self, web_browser, verbose=True, log=True):
         creds = credentials()
@@ -32,11 +33,11 @@ class Grader:
 
         # FOR LOGIN ROUTINE
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
-        self.email_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[2]/div[3]/div/form/div/div[1]/input'
-        self.pass_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[2]/div[3]/div/form/div/div[2]/input'
+        self.email_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/div/div[1]/input'
+        self.pass_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/div/div[2]/input'
         self.email = creds['email']
         self.password = creds['password']
-        self.signin_button_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[2]/div[3]/div/form/button'
+        self.signin_button_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/button'
         self.queue_status_xpath1 = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
         self.queue_status_xpath2 = '/html/body/div[1]/div/div/div[1]/div[2]/div[2]/header/div/div[2]/div/div/div[1]/div[1]/h3'
         self.queue_enter_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div/div[2]/button'
