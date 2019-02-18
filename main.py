@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import argparse
+import logging
 import time
 import traceback
 from datetime import datetime
@@ -8,6 +9,9 @@ from datetime import datetime
 import schedule
 
 from grader import launch_browser, Grader
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--headless', default=False)
@@ -27,14 +31,17 @@ def grade():
         headless_grader.refresh_queue()
 
         if headless_grader.get_project():
-            headless_grader.grade_project()
+            logs = headless_grader.grade_project()
+            logger.info(logs)
+            with open('grades.txt', 'a') as f:
+                f.write(logs)
 
         headless_grader.sleep(2)
 
     # if it fails, log and continue onward
     except Exception:
         err_msg = '******* FAILED {} ************ '.format(format(str(datetime.now())))
-        print(err_msg)
+        logger.error(err_msg)
         with open('logs.txt', 'a') as f:
             f.write('******************************************************\n')
             f.write(err_msg + '\n')
@@ -42,7 +49,7 @@ def grade():
     headless_grader.browser.quit()
 
 
-schedule.every(30).minutes.do(grade)
+schedule.every(1).minutes.do(grade)
 
 while True:
     schedule.run_pending()

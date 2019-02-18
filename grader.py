@@ -115,7 +115,7 @@ class Grader:
         self.browser.find_element(By.XPATH, self.pass_xpath).send_keys(self.password)
         self.browser.find_element(By.XPATH, self.signin_button_xpath).click()
         self.sleep(6)
-        logger.info('Login Sucessful!') if self.verbose else 0
+        logger.debug('Login Sucessful!') if self.verbose else 0
 
     def refresh_queue(self):
         # check if we're in queue or not, and enter/refresh accordingly
@@ -130,17 +130,17 @@ class Grader:
             self.browser.find_element(By.XPATH, self.queue_now_xpath).click()
         else:
             self.browser.find_element(By.XPATH, self.queue_refresh_button_xpath).click()
-        logger.info('Queue Refresh Sucessful!') if self.verbose else 0
+        logger.debug('Queue Refresh Sucessful!') if self.verbose else 0
 
     def check_if_ml(self):
         # check if its an ML project or not, set state.
         e = self.browser.find_element_by_xpath('/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/h1')
         if e.text == 'Use a Pre-trained Image Classifier to Identify Dog Breeds':
             self.ml_project = True
-            logger.info('Grading ML Project') if self.verbose else 0
+            logger.debug('Grading ML Project') if self.verbose else 0
         else:
             self.ml_project = False
-            logger.info('Grading Intro to Web Project') if self.verbose else 0
+            logger.debug('Grading Intro to Web Project') if self.verbose else 0
 
     def get_project(self):
         # Open the new project, wait, then switch control to new tab
@@ -154,14 +154,14 @@ class Grader:
 
             self.browser.find_element(By.XPATH, self.project_xpath).click()
             self.sleep(4)
-            logger.info('Accessed new project!') if self.verbose else 0
+            logger.debug('Accessed new project!') if self.verbose else 0
             self.browser.switch_to_window(self.browser.window_handles[1])
             self.sleep(4)
             self.check_if_ml()
             return True
 
         except NoSuchElementException:
-            logger.info('No projects to grade') if self.verbose else 0
+            logger.debug('No projects to grade') if self.verbose else 0
             return False
 
     def _get_code_tab(self):
@@ -192,7 +192,7 @@ class Grader:
                 self.CSS_page = self.code_files[i]
         if self.has_CSS is True and self.has_html is True:
             self.has_code = True
-        logger.info('Intial File Analysis Complete!') if self.verbose else 0
+        logger.debug('Intial File Analysis Complete!') if self.verbose else 0
 
     def _copy_code(self, lang):
         # open the current code tab and copy to the clipboard
@@ -218,7 +218,7 @@ class Grader:
             .key_up('c') \
             .key_up(Keys.CONTROL) \
             .perform()
-        logger.info('Copied {}!'.format(lang)) if self.verbose else 0
+        logger.debug('Copied {}!'.format(lang)) if self.verbose else 0
 
     def _validate_html(self):
         # head over the HTML validator and look for errors
@@ -241,10 +241,10 @@ class Grader:
 
         if 'No errors or warnings to show' in results.text:
             self.html_validation = True
-            logger.info('Student passed HTML!') if self.verbose else 0
+            logger.debug('Student passed HTML!') if self.verbose else 0
         else:
             self.html_validation = False
-            logger.info('Student failed HTML!') if self.verbose else 0
+            logger.debug('Student failed HTML!') if self.verbose else 0
             self.html_val_error_msgs = []
             for line in results.text.split('\n'):
                 line = line.split('.')
@@ -254,7 +254,7 @@ class Grader:
 
         self.browser.close()
         self.browser.switch_to_window(self.browser.window_handles[1])
-        logger.info('HTML Validation Complete!') if self.verbose else 0
+        logger.debug('HTML Validation Complete!') if self.verbose else 0
 
     def _read_html(self):
         # read the HTML from the clipboard and analyze
@@ -278,7 +278,7 @@ class Grader:
         if self.h >= 3:
             self.has_headers = True
         if self.verbose:
-            logger.info(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
+            logger.debug(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
                         f'link: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \nCSS class {self.has_CSS_class}')
 
     def _read_css(self):
@@ -292,7 +292,7 @@ class Grader:
             self.has_CSS_selectors = True
 
         if self.verbose:
-            logger.info('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
+            logger.debug('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
 
     def _grade_web_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
@@ -385,7 +385,7 @@ class Grader:
         fail_msg = "Please see https://www.w3schools.com/html/html_links.asp if you are having difficulty with images"
         self._grade_web_section(9, self.has_link, pass_msg, fail_msg)
 
-        logger.info('sections 1-9 graded!') if self.verbose else 0
+        logger.debug('sections 1-9 graded!') if self.verbose else 0
 
     def _grade_web_section_last(self):
         # last (section 10) must be different for some reason...
@@ -453,7 +453,7 @@ class Grader:
         self.find_by_xpath_click(self.submit_xpath)
         self.sleep(2)
         self.find_by_xpath_click(self.confirm_xpath)
-        logger.info('Project Submitted!') if self.verbose else 0
+        logger.debug('Project Submitted!') if self.verbose else 0
 
     def _did_pass(self):
         # set state for passing
@@ -508,11 +508,11 @@ class Grader:
                 except NoSuchElementException:
                     pass
             if section not in [1, 13]:
-                logger.info(f'Predefined XPATHS failed for section {section}. Attemping loop.')
+                logger.debug(f'Predefined XPATHS failed for section {section}. Attemping loop.')
                 p = self._grade_arbitrary_ml_section()
-                logger.info(f'section:{section} - {p} worked!')
+                logger.debug(f'section:{section} - {p} worked!')
             else:
-                logger.info(f'Predefined XPATHS for section {section} failed.')
+                logger.debug(f'Predefined XPATHS for section {section} failed.')
 
     @staticmethod
     def _get_arbitrary_xpath(w, x, y, z):
@@ -656,9 +656,7 @@ class Grader:
         # send logs to file
         proj_type = 'ML' if self.ml_project else 'web'
         output = f'\n{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
-        logger.info(output)
-        with open('grades.txt', 'a') as f:
-            f.write(output)
+        return output
 
     def grade_project(self):
         # determine if ML or web, and grade!
@@ -667,7 +665,7 @@ class Grader:
         else:
             self._grade_web_project()
         if self.log:
-            self._write_logs()
+            return self._write_logs()
 
 
 def launch_browser(headless=False, timeout=4):
