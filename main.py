@@ -10,7 +10,6 @@ import schedule
 
 from grader import launch_browser, Grader
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
@@ -24,19 +23,13 @@ if args.headless:
 def grade():
     # start a session to grade a project!
     browser = launch_browser(headless=args.headless, timeout=8)
-    headless_grader = Grader(browser, verbose=False, log=True)
+    headless_grader = Grader(browser)
     try:
-        headless_grader.login()
-        headless_grader.refresh_queue()
+        headless_grader.login_refresh_grade()
 
-        if headless_grader.get_project():
-            headless_grader.grade_project()
-        headless_grader.sleep(2)
-
-    # if it fails, log and continue onward
     except Exception:
-        err_msg = '******* FAILED {} ************ '.format(format(str(datetime.now())))
-        logger.error(err_msg)
+        err_msg = '***** FAILED {} ***** '.format(format(str(datetime.now())))
+        logger.error(err_msg, exc_info=True)
         with open('logs.txt', 'a') as f:
             f.write('******************************************************\n')
             f.write(err_msg + '\n')

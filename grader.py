@@ -12,26 +12,25 @@ from selenium.webdriver.firefox.options import Options
 
 from credentials import credentials
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger("selenium").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
 class Grader:
-    def __init__(self, web_browser, verbose=True, log=True):
-        creds = credentials()
-
+    def __init__(self, web_browser):
         self.browser = web_browser
-        self.verbose = verbose
-        self.log = log
+
         self.start = time.time()
         self.is_passing = True
 
         # FOR LOGIN ROUTINE
+        creds = credentials()
+        self.email = creds['email']
+        self.password = creds['password']
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
         self.email_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/div/div[1]/input'
         self.pass_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/div/div[2]/input'
-        self.email = creds['email']
-        self.password = creds['password']
         self.signin_button_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/button'
         self.queue_status_xpath1 = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[1]/div[1]/h3'
         self.queue_status_xpath2 = '/html/body/div[1]/div/div/div[1]/div[2]/div[2]/header/div/div[2]/div/div/div[1]/div[1]/h3'
@@ -41,7 +40,7 @@ class Grader:
         self.queue_refresh_button_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/header/div/div[2]/div/div/div[2]/button'
 
         # CHECK IF GRADING ML OR WEB
-        self.ml_project = None
+        self.proj_type = None
 
         # FOR GETTING PENDING PROJECTS FROM THE DASHBOARD
         self.project_xpath = '/html/body/div[1]/div/div/div[1]/div[2]/div/section[1]/div/ul/li/div[4]/a'
@@ -60,6 +59,68 @@ class Grader:
         self.final_text_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/ng-form/div/div/div[1]/div/div/textarea'
         self.final_save_button_xpath = '/html/body/div[2]/div/div[2]/div/div[2]/div/div[2]/div/section[5]/div[2]/div/div[4]/ng-form/div/div/div[2]/div/button[1]'
 
+    def login_refresh_grade(self):
+        self._login()
+        self._refresh_queue()
+
+        if self._get_project():
+            self._grade_project()
+        self.sleep(3)
+
+    def _login(self):
+        # a simple login routine
+        self.browser.get(self.start_page)
+        self.browser.find_element(By.XPATH, self.email_xpath).send_keys(self.email)
+        self.browser.find_element(By.XPATH, self.pass_xpath).send_keys(self.password)
+        self.browser.find_element(By.XPATH, self.signin_button_xpath).click()
+        self.sleep(6)
+        logger.info('Login Sucessful!')
+
+    def _refresh_queue(self):
+        # check if we're in queue or not, and enter/refresh accordingly
+        try:
+            queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath1).text
+        except NoSuchElementException:
+            queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath2).text
+        if queue_status == 'Queue Off':
+            self.browser.find_element(By.XPATH, self.queue_enter_xpath).click()
+            self.sleep(3)
+            self.browser.find_element(By.XPATH, self.queue_full_xpath).click()
+            self.browser.find_element(By.XPATH, self.queue_now_xpath).click()
+        else:
+            self.browser.find_element(By.XPATH, self.queue_refresh_button_xpath).click()
+        logger.info('Queue Refresh Sucessful!')
+
+    def _get_project(self):
+        # Open the new project, wait, then switch control to new tab
+        try:
+            time_remaining = self.browser.find_element(By.XPATH, self.time_xpath).text
+            if 'minutes' not in time_remaining:
+                time_remaining = int(time_remaining.split(' ')[0])
+                if time_remaining > 7:
+                    logger.info('Project available but too soon to grade.')
+                    return False
+
+            self.browser.find_element(By.XPATH, self.project_xpath).click()
+            self.sleep(4)
+            logger.info('Accessed new project!')
+            self.browser.switch_to_window(self.browser.window_handles[1])
+            self.sleep(4)
+            self._check_proj_type()
+            return True
+
+        except NoSuchElementException:
+            logger.info('No projects to grade')
+            return False
+
+    def _grade_project(self):
+        # determine if ML or web, and grade!
+        if self.proj_type == 'ml_project':
+            self._grade_ml()
+        elif self.proj_type == 'web_project':
+            self._grade_web_project()
+        self._write_logs()
+
     @staticmethod
     def sleep(seconds=4):
         # utility function to wait for pages to render
@@ -74,125 +135,51 @@ class Grader:
         self.scroll_into_view(e)
         e.click()
 
-    def login(self):
-        # a simple login routine
-        self.browser.get(self.start_page)
-        self.browser.find_element(By.XPATH, self.email_xpath).send_keys(self.email)
-        self.browser.find_element(By.XPATH, self.pass_xpath).send_keys(self.password)
-        self.browser.find_element(By.XPATH, self.signin_button_xpath).click()
-        self.sleep(6)
-        logger.debug('Login Sucessful!') if self.verbose else 0
-
-    def refresh_queue(self):
-        # check if we're in queue or not, and enter/refresh accordingly
-        try:
-            queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath1).text
-        except NoSuchElementException:
-            queue_status = self.browser.find_element(By.XPATH, self.queue_status_xpath2).text
-        if queue_status == 'Queue Off':
-            self.browser.find_element(By.XPATH, self.queue_enter_xpath).click()
-            self.sleep(3)
-            self.browser.find_element(By.XPATH, self.queue_full_xpath).click()
-            self.browser.find_element(By.XPATH, self.queue_now_xpath).click()
-        else:
-            self.browser.find_element(By.XPATH, self.queue_refresh_button_xpath).click()
-        logger.debug('Queue Refresh Sucessful!') if self.verbose else 0
-
-    def check_if_ml(self):
+    def _check_proj_type(self):
         # check if its an ML project or not, set state.
         e = self.browser.find_element_by_xpath('/html/body/div[2]/div/div[2]/div/div[2]/div/div[1]/div/h1')
         if e.text == 'Use a Pre-trained Image Classifier to Identify Dog Breeds':
-            self.ml_project = True
-            logger.debug('Grading ML Project') if self.verbose else 0
+            self.proj_type = 'ml_project'
+            logger.info('Grading ML Project')
         else:
-            self.ml_project = False
-            logger.debug('Grading Intro to Web Project') if self.verbose else 0
+            self.proj_type = 'web_project'
+            logger.info('Grading Intro to Web Project')
 
-    def get_project(self):
-        # Open the new project, wait, then switch control to new tab
-        try:
-            time_remaining = self.browser.find_element(By.XPATH, self.time_xpath).text
-            if 'minutes' not in time_remaining:
-                time_remaining = int(time_remaining.split(' ')[0])
-                if time_remaining > 7:
-                    logger.debug('Project available but too soon to grade.') if self.verbose else 0
-                    return False
-
-            self.browser.find_element(By.XPATH, self.project_xpath).click()
-            self.sleep(4)
-            logger.debug('Accessed new project!') if self.verbose else 0
-            self.browser.switch_to_window(self.browser.window_handles[1])
-            self.sleep(4)
-            self.check_if_ml()
-            return True
-
-        except NoSuchElementException:
-            logger.debug('No projects to grade') if self.verbose else 0
-            return False
-
-    def _get_code_tab(self):
+    def get_code_tab(self):
         # in project, get the code tab where we can read code
         self.browser.find_element(By.XPATH, self.code_tab_xpath).click()
 
-    def _get_preview_tab(self):
+    def get_preview_tab(self):
         # in project, get the preview tab where we can grade
         self.browser.find_element(By.XPATH, self.review_tab_xpath).click()
 
-    def _submit_project(self):
+    def submit_project(self):
         # submit the graded project!
         self.find_by_xpath_click(self.submit_xpath)
         self.sleep(2)
         self.find_by_xpath_click(self.confirm_xpath)
-        logger.debug('Project Submitted!') if self.verbose else 0
+        logger.info('Project Submitted!')
 
     def _write_logs(self):
         # send logs to file
-        proj_type = 'ML' if self.ml_project else 'web'
         output = f'\n{str(datetime.now())} \t' \
-                 f'graded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \t' \
+                 f'graded {self.proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \t' \
                  f'passing: {self.is_passing}'
         logger.info(output)
         with open('all_grades.txt', 'a') as f:
             f.write(output)
 
-    def grade_project(self):
-        # determine if ML or web, and grade!
-        if self.ml_project:
-            self._grade_ml()
-        else:
-            self._grade_web_project()
-        if self.log:
-            return self._write_logs()
-
     def _grade_web_project(self):
         from web_project import WebProject
-        web_proj = WebProject()
-
-        self._get_code_tab()
-        web_proj.check_files(self)
-        web_proj.copy_code(self, 'html')
-        web_proj.validate_html(self)
-        web_proj.read_html(self)
-        web_proj.copy_code(self, 'css')
-        web_proj.read_css(self)
-
-        self._get_preview_tab()
-        web_proj.grade_web_section_first9(self)
-        web_proj.grade_web_section_last(self)
-        web_proj.fill_final_text_section_web(self)
-        self.is_passing = web_proj.did_pass()
-        self._submit_project()
+        web_proj = WebProject(grader=self)
+        web_proj.grade_web_project()
 
     def _grade_ml(self):
         from ml_project import MLProject
-        ml_proj = MLProject()
+        ml_proj = MLProject(grader=self)
+        ml_proj.grade_ml()
 
-        self._get_preview_tab()
-        ml_proj.grade_all_ml_sections(self)
-        ml_proj.fill_final_section_ml(self)
-        self._submit_project()
-
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 def launch_browser(headless=False, timeout=4):
@@ -233,13 +220,6 @@ def launch_browser(headless=False, timeout=4):
 
 if __name__ == '__main__':
     browser = launch_browser()
-
     headless_grader = Grader(browser)
-    headless_grader.login()
-    headless_grader.refresh_queue()
-
-    if headless_grader.get_project():
-        headless_grader.grade_project()
-
-    headless_grader.sleep(3)
+    headless_grader.login_refresh_grade()
     headless_grader.browser.quit()
