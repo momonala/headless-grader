@@ -7,4 +7,4 @@ Test Selenium.ipynb
 credentials.py
 geckodriver.log
 logs.txt
-grades.txt
+all_grades.txt
