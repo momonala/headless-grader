@@ -17,7 +17,7 @@ from selenium.webdriver.firefox.options import Options
 
 from credentials import credentials
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -149,7 +149,7 @@ class Grader:
             if 'minutes' not in time_remaining:
                 time_remaining = int(time_remaining.split(' ')[0])
                 if time_remaining > 7:
-                    logger.warn('Project available but too soon to grade.') if self.verbose else 0
+                    logger.debug('Project available but too soon to grade.') if self.verbose else 0
                     return False
 
             self.browser.find_element(By.XPATH, self.project_xpath).click()
@@ -171,6 +171,30 @@ class Grader:
     def _get_preview_tab(self):
         # in project, get the preview tab where we can grade
         self.browser.find_element(By.XPATH, self.review_tab_xpath).click()
+
+    def _submit_project(self):
+        # submit the graded project!
+        self.find_by_xpath_click(self.submit_xpath)
+        self.sleep(2)
+        self.find_by_xpath_click(self.confirm_xpath)
+        logger.debug('Project Submitted!') if self.verbose else 0
+
+    def _write_logs(self):
+        # send logs to file
+        proj_type = 'ML' if self.ml_project else 'web'
+        output = f'\n{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
+        logger.info(output)
+        with open('grades.txt', 'a') as f:
+            f.write(output)
+
+    def grade_project(self):
+        # determine if ML or web, and grade!
+        if self.ml_project:
+            self._grade_ml()
+        else:
+            self._grade_web_project()
+        if self.log:
+            return self._write_logs()
 
     # ------------------------------- WEB ----------------------------------------------------
     def _check_files(self):
@@ -448,13 +472,6 @@ class Grader:
         e = self.browser.find_element(By.XPATH, self.final_save_button_xpath)
         e.click()
 
-    def _submit_project(self):
-        # submit the graded project!
-        self.find_by_xpath_click(self.submit_xpath)
-        self.sleep(2)
-        self.find_by_xpath_click(self.confirm_xpath)
-        logger.debug('Project Submitted!') if self.verbose else 0
-
     def _did_pass(self):
         # set state for passing
         if False in [self.has_code,
@@ -650,22 +667,7 @@ class Grader:
         self._fill_final_section_ml()
         self._submit_project()
 
-    # -----------------------------------------------------------------------------
-
-    def _write_logs(self):
-        # send logs to file
-        proj_type = 'ML' if self.ml_project else 'web'
-        output = f'\n{str(datetime.now())} \tgraded {proj_type} project in {"{0:.2f}".format(time.time() - self.start)}s \tpassing: {self._did_pass()}'
-        return output
-
-    def grade_project(self):
-        # determine if ML or web, and grade!
-        if self.ml_project:
-            self._grade_ml()
-        else:
-            self._grade_web_project()
-        if self.log:
-            return self._write_logs()
+# -----------------------------------------------------------------------------
 
 
 def launch_browser(headless=False, timeout=4):

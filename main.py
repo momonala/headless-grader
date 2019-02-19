@@ -26,16 +26,11 @@ def grade():
     browser = launch_browser(headless=args.headless, timeout=8)
     headless_grader = Grader(browser, verbose=False, log=True)
     try:
-
         headless_grader.login()
         headless_grader.refresh_queue()
 
         if headless_grader.get_project():
-            logs = headless_grader.grade_project()
-            logger.info(logs)
-            with open('grades.txt', 'a') as f:
-                f.write(logs)
-
+            headless_grader.grade_project()
         headless_grader.sleep(2)
 
     # if it fails, log and continue onward
