@@ -1,10 +1,10 @@
 # The Headless-Grader
 
 <center>
-    <img src=https://laughingsquid.com/wp-content/uploads/Vintage_Headless_Man.jpg alt=headless-teacher width='500'>
+    <img src=https://laughingsquid.com/wp-content/uploads/Vintage_Headless_Man.jpg alt=headless-teacher width='350'>
 </center>
 
-semi-secret project for self-grading projects @udacity with Selenium. sshhhhh
+semi-secret. sshhhhh
 
 # Dependencies
 
