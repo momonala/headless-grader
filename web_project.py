@@ -168,10 +168,9 @@ class WebProject:
             self.has_divs = True
         if self.h >= 3:
             self.has_headers = True
-        if self.grader.verbose:
-            logger.info(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
-                        f'link: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \n'
-                        f'CSS class {self.has_CSS_class}')
+        logger.info(f'divs: {self.divs} \nh-tags: {self.h} \nimg: {self.has_img} \n'
+                    f'link: {self.has_link} \nlinked-CSS: {self.has_linked_CSS} \n'
+                    f'CSS class {self.has_CSS_class}')
 
     def _read_css(self):
         # read the CSS from the clipboard and analyze
@@ -183,8 +182,7 @@ class WebProject:
         if self.num_CSS_selectors >= 3:
             self.has_CSS_selectors = True
 
-        if self.grader.verbose:
-            logger.info('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
+        logger.info('CSS selectors: {} Passed {}'.format(self.num_CSS_selectors, self.has_CSS_selectors))
 
     def _grade_web_section(self, section, criteria, pass_msg, fail_msg):
         # grade a single section based on a criteria, XPATH template below
