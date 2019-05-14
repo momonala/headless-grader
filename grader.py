@@ -12,9 +12,9 @@ from selenium.webdriver.firefox.options import Options
 
 from credentials import credentials
 
-logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("selenium").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
+logging.getLogger(__name__).setLevel(logging.DEBUG)
 
 
 class Grader:

@@ -11,6 +11,7 @@ import schedule
 from grader import launch_browser, Grader
 
 logger = logging.getLogger(__name__)
+logging.getLogger(__name__).setLevel(logging.ERROR)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--headless', default=False)
