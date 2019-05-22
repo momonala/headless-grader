@@ -17,9 +17,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--headless', default=False)
 args = parser.parse_args()
 
-if args.headless:
-    raise NotImplementedError('Headless mode not working - copying clipboard with cntrl+C in headless unimplemented')
-
 
 def grade():
     # start a session to grade a project!

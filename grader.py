@@ -208,18 +208,24 @@ def launch_browser(headless=False, timeout=4):
     fp.set_preference("browser.download.folderList", 2)
     fp.set_preference("browser.download.manager.showWhenStarting", False)
     fp.set_preference("browser.download.dir", os.getcwd())
-    fp.set_preference("browser.helperApps.neverAsk.saveToDisk",
-                      "application/zip")
+    fp.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/zip")
 
-    web_browser = Firefox(firefox_profile=fp,
-                          executable_path='geckodriver',
-                          firefox_options=options)
+    web_browser = Firefox(
+        firefox_profile=fp,
+        executable_path='geckodriver',
+        firefox_options=options
+    )
     web_browser.implicitly_wait(timeout)
     return web_browser
 
 
 if __name__ == '__main__':
-    browser = launch_browser()
-    headless_grader = Grader(browser)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-n', '--headless', default=False)
+    args = parser.parse_args()
+
+    browser = launch_browser(headless=args.headless)
+    headless_grader = Grader(web_browser=browser)
     headless_grader.login_refresh_grade()
     headless_grader.browser.quit()
