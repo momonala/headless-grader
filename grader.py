@@ -5,16 +5,28 @@ import os
 import time
 from datetime import datetime
 
+import requests
+from credentials import credentials, TWILIO_SID, TWILIO_AUTHTOKEN, TWILIO_MESSAGE_ENDPOINT, TWILIO_NUMBER, MY_NUMBER 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import Firefox, FirefoxProfile
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 
-from credentials import credentials
-
 logging.getLogger("selenium").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 logging.getLogger(__name__).setLevel(logging.DEBUG)
+
+
+def send_whatsapp_error_message():
+    message_data = {
+        "To": MY_NUMBER,
+        "From": TWILIO_NUMBER,
+        "Body": 'The Headless Grader needs your help!',
+    }
+    response = requests.post(TWILIO_MESSAGE_ENDPOINT, data=message_data, auth=(TWILIO_SID, TWILIO_AUTHTOKEN))
+    response_json = response.json()
+    logger.info(response_json['sid'], response_json['sid'])
+    return response_json
 
 
 class Grader:
@@ -95,11 +107,17 @@ class Grader:
         # Open the new project, wait, then switch control to new tab
         try:
             time_remaining = self.browser.find_element(By.XPATH, self.time_xpath).text
-            if 'minutes' not in time_remaining:
-                time_remaining = int(time_remaining.split(' ')[0])
-                if time_remaining > 7:
-                    logger.info('Project available but too soon to grade.')
-                    return False
+            if 'minutes' in time_remaining:
+                logger.warning(f'Only {time_remaining} minutes left.')
+                return False
+            time_remaining = int(time_remaining.split(' ')[0])
+            if time_remaining > 7:
+                logger.info('Project available but too soon to grade.')
+                return False
+            if time_remaining <= 5:
+                logger.info('Error in grading! Manual intervention needed.')
+                send_whatsapp_error_message()
+                return False
 
             self.browser.find_element(By.XPATH, self.project_xpath).click()
             self.sleep(4)
@@ -213,7 +231,7 @@ def launch_browser(headless=False, timeout=4):
     web_browser = Firefox(
         firefox_profile=fp,
         executable_path='geckodriver',
-        firefox_options=options
+        options=options
     )
     web_browser.implicitly_wait(timeout)
     return web_browser
