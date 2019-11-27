@@ -220,6 +220,7 @@ def launch_browser(headless=False, timeout=4):
     options = Options()
     if headless:
         options.add_argument('-headless')
+        logger.debug('Running in headless mode!')
 
     fp = FirefoxProfile()
     fp.set_preference("dom.webnotifications.enabled", False)
