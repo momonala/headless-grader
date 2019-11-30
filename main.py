@@ -38,7 +38,7 @@ def grade():
     headless_grader.browser.quit()
 grade()
 
-schedule.every(30).minutes.do(grade)
+schedule.every(60).minutes.do(grade)
 
 while True:
     schedule.run_pending()
