@@ -11,11 +11,14 @@ import schedule
 from grader import launch_browser, Grader
 
 logger = logging.getLogger(__name__)
-logging.getLogger(__name__).setLevel(logging.ERROR)
+logging.getLogger(__name__).setLevel(logging.DEBUG)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--headless', default=False)
 args = parser.parse_args()
+
+if args.headless:
+    logger.info('Running in Headless mode!')
 
 
 def grade():
@@ -33,9 +36,9 @@ def grade():
             f.write(err_msg + '\n')
             f.write(traceback.format_exc())
     headless_grader.browser.quit()
+grade()
 
-
-schedule.every(30).minutes.do(grade)
+schedule.every(60).minutes.do(grade)
 
 while True:
     schedule.run_pending()
