@@ -6,11 +6,12 @@ import time
 from datetime import datetime
 
 import requests
-from credentials import credentials, TWILIO_SID, TWILIO_AUTHTOKEN, TWILIO_MESSAGE_ENDPOINT, TWILIO_NUMBER, MY_NUMBER 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import Firefox, FirefoxProfile
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+
+from values import EMAIL, PASSWORD, TWILIO_SID, TWILIO_AUTHTOKEN, TWILIO_MESSAGE_ENDPOINT, TWILIO_NUMBER, MY_NUMBER
 
 logging.getLogger("selenium").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -37,9 +38,8 @@ class Grader:
         self.is_passing = True
 
         # FOR LOGIN ROUTINE
-        creds = credentials()
-        self.email = creds['email']
-        self.password = creds['password']
+        self.email = EMAIL
+        self.password = PASSWORD
         self.start_page = 'https://auth.udacity.com/sign-in?next=https%3A%2F%2Fmentor-dashboard.udacity.com%2Freviews%2Foverview'
         self.email_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/div/div[1]/input'
         self.pass_xpath = '/html/body/div[1]/div/div[2]/div/div/div/div[2]/div[3]/div[3]/div/form/div/div[2]/input'

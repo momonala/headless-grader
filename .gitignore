@@ -4,7 +4,7 @@ __pycache__/
 .idea/
 venv/
 Test Selenium.ipynb
-credentials.py
+values.py
 geckodriver.log
 logs.txt
 all_grades.txt
